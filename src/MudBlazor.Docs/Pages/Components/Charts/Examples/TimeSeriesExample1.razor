@@ -1,13 +1,19 @@
 ﻿@namespace MudBlazor.Docs.Examples
 
 <div>
-    <MudTimeSeriesChart ChartSeries="@_series" @bind-SelectedIndex="Index" Width="100%" Height="350px" ChartOptions="@_options" CanHideSeries TimeLabelSpacing="TimeSpan.FromMinutes(5)" />
+    <MudTimeSeriesChart ChartSeries="@_series" @bind-SelectedIndex="Index" Width="100%" Height="350px" ChartOptions="@_options" CanHideSeries="true" TimeLabelSpacing="TimeSpan.FromMinutes(5)" TimeLabelSpacingRounding="_roundedLabelSpacing" TimeLabelSpacingRoundingMoveSeries="_roundedLabelSpacingMoveSeries" />
     <MudGrid>
         <MudItem xs="6">
             <MudText Typo="Typo.body1" Class="py-3">Selected: @(Index < 0 ? "None" : _series[Index].Name)</MudText>
         </MudItem>
         <MudItem xs="6">
             <MudSlider @bind-Value="_options.LineStrokeWidth" Min="1" Max="10" Color="Color.Info">Line Width: @_options.LineStrokeWidth.ToString()</MudSlider>
+        </MudItem>
+        <MudItem xs="6">
+            <MudCheckBox @bind-Value="_roundedLabelSpacing" Color="Color.Info" Label="TimeLabelSpacing Rounding"></MudCheckBox>
+        </MudItem>
+        <MudItem xs="6">
+            <MudCheckBox @bind-Value="_roundedLabelSpacingMoveSeries" Color="Color.Info" Label="TimeLabelSpacing Rounding - Move Series"></MudCheckBox>
         </MudItem>
     </MudGrid>
 </div>
@@ -32,6 +38,9 @@
     private List<TimeSeriesChartSeries> _series = new();
 
     private readonly Random _random = new Random();
+
+    private bool _roundedLabelSpacing = false;
+    private bool _roundedLabelSpacingMoveSeries = false;
 
     protected override void OnInitialized()
     {

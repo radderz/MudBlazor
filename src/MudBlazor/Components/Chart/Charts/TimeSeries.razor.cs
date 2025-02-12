@@ -36,6 +36,10 @@ namespace MudBlazor.Charts
         private List<SvgPath> _chartLines = [];
         private Dictionary<int, SvgPath> _chartAreas = [];
 
+        private DateTime _minDateTime;
+        private DateTime _maxDateTime;
+        private TimeSpan _minDateLabelOffset;
+
         protected override void OnParametersSet()
         {
             base.OnParametersSet();
@@ -48,6 +52,7 @@ namespace MudBlazor.Charts
             if (MudChartParent != null)
                 _series = MudChartParent.ChartSeries;
 
+            ComputeMinAndMaxDateTimes();
             ComputeUnitsAndNumberOfLines(out double gridXUnits, out double gridYUnits, out int numHorizontalLines, out int lowestHorizontalLine, out int numVerticalLines);
 
             var horizontalSpace = (BoundWidth - HorizontalStartSpace - HorizontalEndSpace) / Math.Max(1, numVerticalLines - 1);
@@ -56,6 +61,41 @@ namespace MudBlazor.Charts
             GenerateHorizontalGridLines(numHorizontalLines, lowestHorizontalLine, gridYUnits, verticalSpace);
             GenerateVerticalGridLines(numVerticalLines, gridXUnits, horizontalSpace);
             GenerateChartLines(lowestHorizontalLine, gridYUnits, horizontalSpace, verticalSpace);
+        }
+
+        private void ComputeMinAndMaxDateTimes()
+        {
+            _minDateLabelOffset = TimeSpan.Zero;
+
+            if (_series.SelectMany(series => series.Data).Any())
+            {
+                _minDateTime = _series.SelectMany(series => series.Data).Min(x => x.DateTime);
+                _maxDateTime = _series.SelectMany(series => series.Data).Max(x => x.DateTime);
+                var labelSpacing = TimeLabelSpacing;
+
+                if (TimeLabelSpacingRounding == false) return;
+
+                if (_minDateTime.Ticks % labelSpacing.Ticks != 0)
+                {
+                    // subtract the remainder of the ticks from the minDateTime to get the first tick before or equal to the minDateTime, if the first label is over half the labelSpacing away from the first timestamp, offset the label instead.
+                    var offset = new TimeSpan(_minDateTime.Ticks % labelSpacing.Ticks);
+
+                    if (TimeLabelSpacingRoundingMoveSeries)
+                    {
+                        _minDateTime = _minDateTime.Subtract(offset);
+                    }
+                    else
+                        _minDateLabelOffset = labelSpacing - offset;
+                }
+
+                if (TimeLabelSpacingRoundingMoveSeries && _maxDateTime.Ticks % labelSpacing.Ticks != 0)
+                {
+                    // add the remainder of the ticks to the maxDateTime to get the first tick after or equal to the maxDateTime
+                    var offset = labelSpacing - new TimeSpan(_maxDateTime.Ticks % labelSpacing.Ticks);
+
+                    _maxDateTime = _maxDateTime.Add(offset);
+                }
+            }
         }
 
         private void ComputeUnitsAndNumberOfLines(out double gridXUnits, out double gridYUnits, out int numHorizontalLines, out int lowestHorizontalLine, out int numVerticalLines)
@@ -92,12 +132,9 @@ namespace MudBlazor.Charts
                     numHorizontalLines = highestHorizontalLine - lowestHorizontalLine + 1;
                 }
 
-                var minDateTime = _series.SelectMany(series => series.Data).Min(x => x.DateTime);
-                var maxDateTime = _series.SelectMany(series => series.Data).Max(x => x.DateTime);
-
                 var labelSpacing = TimeLabelSpacing;
 
-                numVerticalLines = (int)Math.Ceiling((maxDateTime - minDateTime) / labelSpacing);
+                numVerticalLines = (int)Math.Ceiling((_maxDateTime - _minDateTime) / labelSpacing);
             }
             else
             {
@@ -141,11 +178,24 @@ namespace MudBlazor.Charts
             if (numVerticalLines == 0 || !_series.Any(x => x.Data.Any()))
                 return;
 
-            var minDateTime = _series.SelectMany(series => series.Data).Min(x => x.DateTime);
+            double startOffset = 0;
+
+            var minDateTimeWithOffset = _minDateTime.Add(_minDateLabelOffset);
+
+            if (_minDateLabelOffset != TimeSpan.Zero)
+            {
+                // offset the first label to be _minDateLabelOffset away from the minDateTime
+
+                startOffset = (_minDateLabelOffset.TotalMilliseconds / (_maxDateTime - _minDateTime).TotalMilliseconds) * (BoundWidth - HorizontalStartSpace - HorizontalEndSpace);
+            }
 
             for (var i = 0; i < numVerticalLines; i++)
             {
-                var x = HorizontalStartSpace + i * horizontalSpace;
+                var x = startOffset + HorizontalStartSpace + i * horizontalSpace;
+
+                if (x > BoundWidth - HorizontalEndSpace)
+                    break; // we are out of bounds
+
                 var line = new SvgPath()
                 {
                     Index = i,
@@ -153,7 +203,7 @@ namespace MudBlazor.Charts
                 };
                 _verticalLines.Add(line);
 
-                var xLabels = minDateTime.Add(TimeLabelSpacing * i);
+                var xLabels = minDateTimeWithOffset.Add(TimeLabelSpacing * i);
 
                 var lineValue = new SvgText()
                 {
@@ -174,9 +224,7 @@ namespace MudBlazor.Charts
             if (_series.Count == 0)
                 return;
 
-            var allSeriesMinDateTime = _series.SelectMany(series => series.Data).Min(x => x.DateTime);
-            var allSeriesMaxDateTime = _series.SelectMany(series => series.Data).Max(x => x.DateTime);
-            var fullDateTimeDiff = allSeriesMaxDateTime - allSeriesMinDateTime;
+            var fullDateTimeDiff = _maxDateTime - _minDateTime;
 
             for (var i = 0; i < _series.Count; i++)
             {
@@ -197,7 +245,7 @@ namespace MudBlazor.Charts
                 {
                     var dateTime = data[index].DateTime;
 
-                    var diffFromMin = dateTime - allSeriesMinDateTime;
+                    var diffFromMin = dateTime - _minDateTime;
                     var diffFromMax = seriesMaxDateTime - dateTime; // Warning: Variable is never used
 
                     var gridValue = (data[index].Value / gridYUnits - lowestHorizontalLine) * verticalSpace;
