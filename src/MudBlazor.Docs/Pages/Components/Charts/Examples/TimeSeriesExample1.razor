@@ -1,7 +1,7 @@
 ﻿@namespace MudBlazor.Docs.Examples
 
 <div>
-    <MudTimeSeriesChart ChartSeries="@_series" @bind-SelectedIndex="Index" Width="100%" Height="350px" ChartOptions="@_options" CanHideSeries="true" TimeLabelSpacing="TimeSpan.FromMinutes(5)" TimeLabelSpacingRounding="_roundedLabelSpacing" TimeLabelSpacingRoundingMoveSeries="_roundedLabelSpacingMoveSeries" />
+    <MudTimeSeriesChart ChartSeries="@_series" @bind-SelectedIndex="Index" Width="100%" Height="350px" ChartOptions="@_options" CanHideSeries="true" TimeLabelSpacing="TimeSpan.FromMinutes(5)" TimeLabelSpacingRounding="_roundedLabelSpacing" TimeLabelSpacingRoundingPadSeries="_roundedLabelSpacingPadSeries" />
     <MudGrid>
         <MudItem xs="6">
             <MudText Typo="Typo.body1" Class="py-3">Selected: @(Index < 0 ? "None" : _series[Index].Name)</MudText>
@@ -13,7 +13,7 @@
             <MudCheckBox @bind-Value="_roundedLabelSpacing" Color="Color.Info" Label="TimeLabelSpacing Rounding"></MudCheckBox>
         </MudItem>
         <MudItem xs="6">
-            <MudCheckBox @bind-Value="_roundedLabelSpacingMoveSeries" Color="Color.Info" Label="TimeLabelSpacing Rounding - Move Series"></MudCheckBox>
+            <MudCheckBox @bind-Value="_roundedLabelSpacingPadSeries" Color="Color.Info" Label="TimeLabelSpacing Rounding - Pad Series"></MudCheckBox>
         </MudItem>
     </MudGrid>
 </div>
@@ -40,7 +40,7 @@
     private readonly Random _random = new Random();
 
     private bool _roundedLabelSpacing = false;
-    private bool _roundedLabelSpacingMoveSeries = false;
+    private bool _roundedLabelSpacingPadSeries = false;
 
     protected override void OnInitialized()
     {

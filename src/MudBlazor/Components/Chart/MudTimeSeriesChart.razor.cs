@@ -28,12 +28,12 @@ namespace MudBlazor
 
         /// <summary>
         /// When TimeLabelSpacingRounding is true, 
-        /// When true: move to allow rounding (which can result in gaps on either side of the chart).
-        /// When false: move the labels inwards to be rounded to the label spacing.
+        /// When true: pad series to allow rounding with labels before and after the series start/end.
+        /// When false: move the labels inwards to be rounded to the label spacing without changing the start/end time of the axis.
         /// </summary>
         [Parameter]
         [Category(CategoryTypes.Chart.Behavior)]
-        public bool TimeLabelSpacingRoundingMoveSeries { get; set; }
+        public bool TimeLabelSpacingRoundingPadSeries { get; set; }
 
         /// <summary>
         /// A way to specify datetime formats for timestamp labels, default of HH:mm.

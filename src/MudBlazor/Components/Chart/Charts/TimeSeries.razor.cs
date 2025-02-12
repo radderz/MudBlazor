@@ -80,7 +80,7 @@ namespace MudBlazor.Charts
                     // subtract the remainder of the ticks from the minDateTime to get the first tick before or equal to the minDateTime, if the first label is over half the labelSpacing away from the first timestamp, offset the label instead.
                     var offset = new TimeSpan(_minDateTime.Ticks % labelSpacing.Ticks);
 
-                    if (TimeLabelSpacingRoundingMoveSeries)
+                    if (TimeLabelSpacingRoundingPadSeries)
                     {
                         _minDateTime = _minDateTime.Subtract(offset);
                     }
@@ -88,7 +88,7 @@ namespace MudBlazor.Charts
                         _minDateLabelOffset = labelSpacing - offset;
                 }
 
-                if (TimeLabelSpacingRoundingMoveSeries && _maxDateTime.Ticks % labelSpacing.Ticks != 0)
+                if (TimeLabelSpacingRoundingPadSeries && _maxDateTime.Ticks % labelSpacing.Ticks != 0)
                 {
                     // add the remainder of the ticks to the maxDateTime to get the first tick after or equal to the maxDateTime
                     var offset = labelSpacing - new TimeSpan(_maxDateTime.Ticks % labelSpacing.Ticks);
