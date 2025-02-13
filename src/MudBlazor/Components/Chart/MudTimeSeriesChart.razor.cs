@@ -55,5 +55,12 @@ namespace MudBlazor
         [Parameter]
         [Category(CategoryTypes.Chart.Behavior)]
         public string? YAxisTitle { get; set; }
+
+        /// <summary>
+        /// Specifies the chart should take its bounds from the parent chart.
+        /// </summary>
+        [Parameter]
+        [Category(CategoryTypes.Chart.Behavior)]
+        public bool MatchBoundsToSize { get; set; }
     }
 }

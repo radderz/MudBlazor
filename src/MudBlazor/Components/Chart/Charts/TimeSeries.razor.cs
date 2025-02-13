@@ -14,8 +14,10 @@ namespace MudBlazor.Charts
     /// <seealso cref="StackedBar"/>
     partial class TimeSeries : MudTimeSeriesChartBase
     {
-        private const double BoundWidth = 800.0;
-        private const double BoundHeight = 350.0;
+        private const double BoundWidthDefault = 800;
+        private const double BoundHeightDefault = 350;
+        private double BoundWidth = BoundWidthDefault;
+        private double BoundHeight = BoundHeightDefault;
         private const double HorizontalStartSpace = 80.0; // needs space to have the full label visible and be even to the end space
         private const double HorizontalEndSpace = 80.0; // needs space to have the full label visible and be even to the start space
         private const double VerticalStartSpace = 25.0;
@@ -43,6 +45,23 @@ namespace MudBlazor.Charts
         protected override void OnParametersSet()
         {
             base.OnParametersSet();
+
+            if (MudChartParent != null && MudChartParent.MatchBoundsToSize)
+            {
+                if (MudChartParent.Width.EndsWith("px")
+                    && MudChartParent.Height.EndsWith("px")
+                    && double.TryParse(MudChartParent.Width.AsSpan(0, MudChartParent.Width.Length - 2), out var width)
+                    && double.TryParse(MudChartParent.Height.AsSpan(0, MudChartParent.Height.Length - 2), out var height))
+                {
+                    BoundWidth = width;
+                    BoundHeight = height;
+                }
+            }
+            else
+            {
+                BoundWidth = BoundWidthDefault;
+                BoundHeight = BoundHeightDefault;
+            }
 
             RebuildChart();
         }
@@ -228,8 +247,8 @@ namespace MudBlazor.Charts
 
             for (var i = 0; i < _series.Count; i++)
             {
-                StringBuilder chartLine = new StringBuilder();
-                StringBuilder chartArea = new StringBuilder();
+                StringBuilder chartLine = new();
+                StringBuilder chartArea = new();
 
                 var series = _series[i];
                 var data = series.Data;
@@ -237,16 +256,13 @@ namespace MudBlazor.Charts
                 if (data.Count <= 0)
                     continue;
 
-                var seriesMinDateTime = data.Min(x => x.DateTime); // Warning: Variable is never used
-                var seriesMaxDateTime = data.Max(x => x.DateTime);
+                var seriesMinDateTime = data.Min(x => x.DateTime);
 
-                // TODO the x should be based on the datetime relative to the min and max datetime in the series
                 (double x, double y) GetXYForDataPoint(int index)
                 {
                     var dateTime = data[index].DateTime;
-
+                    
                     var diffFromMin = dateTime - _minDateTime;
-                    var diffFromMax = seriesMaxDateTime - dateTime; // Warning: Variable is never used
 
                     var gridValue = (data[index].Value / gridYUnits - lowestHorizontalLine) * verticalSpace;
                     var y = BoundHeight - VerticalStartSpace - gridValue;
@@ -254,7 +270,7 @@ namespace MudBlazor.Charts
                     if (fullDateTimeDiff.TotalMilliseconds == 0)
                         return (HorizontalStartSpace, y);
 
-                    var x = HorizontalStartSpace + (diffFromMin.TotalMilliseconds / fullDateTimeDiff.TotalMilliseconds) * (BoundWidth - HorizontalStartSpace - HorizontalEndSpace);
+                    var x = HorizontalStartSpace + diffFromMin.TotalMilliseconds / fullDateTimeDiff.TotalMilliseconds * (BoundWidth - HorizontalStartSpace - HorizontalEndSpace);
 
                     return (x, y);
                 }

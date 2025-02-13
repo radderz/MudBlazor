@@ -1,7 +1,16 @@
 ﻿@namespace MudBlazor.Docs.Examples
 
 <div>
-    <MudTimeSeriesChart ChartSeries="@_series" @bind-SelectedIndex="Index" Width="100%" Height="350px" ChartOptions="@_options" CanHideSeries="true" TimeLabelSpacing="TimeSpan.FromMinutes(5)" TimeLabelSpacingRounding="_roundedLabelSpacing" TimeLabelSpacingRoundingPadSeries="_roundedLabelSpacingPadSeries" />
+    <MudTimeSeriesChart ChartSeries="@_series"
+                        @bind-SelectedIndex="Index"
+                        Width="@_width"
+                        Height="@_height"
+                        ChartOptions="@_options"
+                        CanHideSeries="true"
+                        TimeLabelSpacing="TimeSpan.FromMinutes(5)"
+                        TimeLabelSpacingRounding="_roundedLabelSpacing"
+                        TimeLabelSpacingRoundingPadSeries="_roundedLabelSpacingPadSeries"
+                        MatchBoundsToSize="_matchBoundsToSize" />
     <MudGrid>
         <MudItem xs="6">
             <MudText Typo="Typo.body1" Class="py-3">Selected: @(Index < 0 ? "None" : _series[Index].Name)</MudText>
@@ -14,6 +23,15 @@
         </MudItem>
         <MudItem xs="6">
             <MudCheckBox @bind-Value="_roundedLabelSpacingPadSeries" Color="Color.Info" Label="TimeLabelSpacing Rounding - Pad Series"></MudCheckBox>
+        </MudItem>
+        <MudItem xs="6">
+            <MudCheckBox @bind-Value="_matchBoundsToSize" Color="Color.Info" Label="MatchBoundsToSize"></MudCheckBox>
+        </MudItem>
+        <MudItem xs="6">
+            <MudTextField @bind-Value="_width" Label="Chart Width"></MudTextField>
+        </MudItem>
+        <MudItem xs="6">
+            <MudTextField @bind-Value="_height" Label="Chart Height"></MudTextField>
         </MudItem>
     </MudGrid>
 </div>
@@ -41,6 +59,10 @@
 
     private bool _roundedLabelSpacing = false;
     private bool _roundedLabelSpacingPadSeries = false;
+
+    private bool _matchBoundsToSize = false;
+    private string _width = "800px";
+    private string _height = "350px";
 
     protected override void OnInitialized()
     {
