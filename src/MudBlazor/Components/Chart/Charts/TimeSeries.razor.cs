@@ -261,7 +261,7 @@ namespace MudBlazor.Charts
                 (double x, double y) GetXYForDataPoint(int index)
                 {
                     var dateTime = data[index].DateTime;
-                    
+
                     var diffFromMin = dateTime - _minDateTime;
 
                     var gridValue = (data[index].Value / gridYUnits - lowestHorizontalLine) * verticalSpace;
