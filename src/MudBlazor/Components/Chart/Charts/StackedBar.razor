@@ -1,6 +1,6 @@
 ﻿@namespace MudBlazor.Charts
 @using System.Globalization;
-@inherits MudCategoryChartBase
+@inherits MudCategoryAxisChartBase
 
 <svg @attributes="UserAttributes" class="mud-chart-line mud-ltr" width="@MudChartParent?.Width" height="@MudChartParent?.Height" viewBox="0 0 @BoundWidth @BoundHeight">
     <g class="mud-charts-grid">
@@ -27,15 +27,19 @@
         }
     </g>
     <g class="mud-charts-xaxis">
-        @foreach (var verticalLineValue in _verticalValues)
+        @for (var i = 0; i < _verticalValues.Count; i += AxisChartOptions.LabelStep > 0 ? AxisChartOptions.LabelStep : 1)
         {
-            @((MarkupString)$"<text x='{verticalLineValue.X.ToString(CultureInfo.InvariantCulture)}' y='{verticalLineValue.Y.ToString(CultureInfo.InvariantCulture)}' font-size='12px' text-anchor='middle'>{verticalLineValue.Value?.ToString(CultureInfo.InvariantCulture)}</text>")
+            var verticalLineValue = _verticalValues[i];
+            var x = verticalLineValue.X.ToString(CultureInfo.InvariantCulture);
+            var y = verticalLineValue.Y.ToString(CultureInfo.InvariantCulture);
+            var rotation = (-verticalLineValue.Rotation).ToString(CultureInfo.InvariantCulture);
+            @((MarkupString)$"<text x='{x}' y='{y}' font-size='12px' text-anchor='middle' transform='rotate({rotation} {x} {y})'>{verticalLineValue.Value?.ToString(CultureInfo.InvariantCulture)}</text>")
         }
     </g>
     <g class="mud-charts-bar-series">
         @foreach (var bar in _bars)
         {
-            <path class="mud-chart-bar" @onclick="() => SelectedIndex = bar.Index" fill="@MudChartParent?.ChartOptions.ChartPalette.GetValue(bar.Index % MudChartParent.ChartOptions.ChartPalette.Length)" stroke="@MudChartParent?.ChartOptions.ChartPalette.GetValue(bar.Index % MudChartParent.ChartOptions.ChartPalette.Length)" stroke-width="@BarWidthStroke" d="@bar.Data"></path>
+            <path class="mud-chart-bar" @onclick="() => SelectedIndex = bar.Index" fill="@MudChartParent?.ChartOptions.ChartPalette.GetValue(bar.Index % MudChartParent.ChartOptions.ChartPalette.Length)" stroke="@MudChartParent?.ChartOptions.ChartPalette.GetValue(bar.Index % MudChartParent.ChartOptions.ChartPalette.Length)" stroke-width="@_barWidthStroke" d="@bar.Data"></path>
         }
     </g>
 

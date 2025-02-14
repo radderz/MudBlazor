@@ -11,25 +11,9 @@ namespace MudBlazor.Charts
     /// <seealso cref="Line"/>
     /// <seealso cref="Pie"/>
     /// <seealso cref="TimeSeries"/>
-    partial class StackedBar : MudCategoryChartBase
+    partial class StackedBar : MudCategoryAxisChartBase
     {
-        private const double BoundWidthDefault = 650.0;
-        private const double BoundHeightDefault = 350.0;
-        private double BoundWidth = 650.0;
-        private double BoundHeight = 350.0;
-        private const double HorizontalStartSpace = 30.0;
-        private const double HorizontalEndSpace = 30.0;
-        private const double VerticalStartSpace = 25.0;
-        private const double VerticalEndSpace = 25.0;
-        private const double OverlapAmount = 0.4; // used to trigger slight overlap so the bars don't have gaps due to floating point rounding
-        private double BarWidth = 32.0;
-        private double BarWidthStroke = 32.0;
-
-        /// <summary>
-        /// The chart, if any, containing this component.
-        /// </summary>
-        [CascadingParameter]
-        public MudChart? MudChartParent { get; set; }
+        private const double OverlapAmount = 0.5; // used to trigger slight overlap so the bars don't have gaps due to floating point rounding
 
         /// <summary>
         /// The ratio of the width of the bars to the space between them.
@@ -47,6 +31,8 @@ namespace MudBlazor.Charts
         private List<ChartSeries> _series = [];
 
         private List<SvgPath> _bars = [];
+        private double _barWidth;
+        private double _barWidthStroke;
 
         /// <inheritdoc />
         protected override void OnParametersSet()
@@ -66,37 +52,12 @@ namespace MudBlazor.Charts
 
             // Calculate spacing – note the horizontal space is computed so that the vertical grid lines line up
             double horizontalSpace = Math.Round((BoundWidth - HorizontalStartSpace - HorizontalEndSpace) / (numVerticalLines > 1 ? (numVerticalLines) : 1), 1);
-            double verticalSpace = (BoundHeight - VerticalStartSpace - VerticalEndSpace) / (numHorizontalLines > 1 ? (numHorizontalLines) : 1);
+            double verticalSpace = (BoundHeight - VerticalStartSpace - VerticalEndSpace - AxisChartOptions.LabelExtraHeight) / (numHorizontalLines > 1 ? (numHorizontalLines) : 1);
 
             GenerateHorizontalGridLines(numHorizontalLines, gridYUnits, verticalSpace);
             GenerateVerticalGridLines(numVerticalLines, horizontalSpace);
             GenerateStackedBars(gridYUnits, horizontalSpace, verticalSpace);
             GenerateLegends();
-        }
-
-        private void SetBounds()
-        {
-            if (MudChartParent != null && MudChartParent.MatchBoundsToSize)
-            {
-                if (MudChartParent.Width.EndsWith("px")
-                    && MudChartParent.Height.EndsWith("px")
-                    && double.TryParse(MudChartParent.Width.AsSpan(0, MudChartParent.Width.Length - 2), out var width)
-                    && double.TryParse(MudChartParent.Height.AsSpan(0, MudChartParent.Height.Length - 2), out var height))
-                {
-                    BoundWidth = width;
-                    BoundHeight = height;
-                }
-                else
-                {
-                    BoundWidth = BoundWidthDefault;
-                    BoundHeight = BoundHeightDefault;
-                }
-            }
-            else
-            {
-                BoundWidth = BoundWidthDefault;
-                BoundHeight = BoundHeightDefault;
-            }
         }
 
         /// <summary>
@@ -116,12 +77,12 @@ namespace MudBlazor.Charts
             // Determine the number of columns (i.e. vertical grid lines)
             numVerticalLines = _series.Any() ? _series.Max(series => series.Data.Length) : 0;
 
-            BarWidthStroke = BarWidth = (BoundWidth - HorizontalStartSpace - HorizontalEndSpace) / (numVerticalLines > 1 ? (numVerticalLines) : 1) * StackedBarWidthRatio;
+            _barWidthStroke = _barWidth = (BoundWidth - HorizontalStartSpace - HorizontalEndSpace) / (numVerticalLines > 1 ? (numVerticalLines) : 1) * StackedBarWidthRatio;
             if (StackedBarWidthRatio == 1)
             {
                 // Optimisation to remove gaps between bars due to floating point rounding causing gaps to be visible between bars.
                 // This givs a very slight overlap which isn't visible without purposeful inspection and zooming.
-                BarWidthStroke += OverlapAmount;
+                _barWidthStroke += OverlapAmount;
             }
 
             // Compute the stacked total for each column
@@ -154,14 +115,14 @@ namespace MudBlazor.Charts
                 var line = new SvgPath()
                 {
                     Index = i,
-                    Data = $"M {ToS(HorizontalStartSpace)} {ToS(BoundHeight - y)} L {ToS(BoundWidth - HorizontalEndSpace)} {ToS(BoundHeight - y)}"
+                    Data = $"M {ToS(HorizontalStartSpace)} {ToS(BoundHeight - AxisChartOptions.LabelExtraHeight - y)} L {ToS(BoundWidth - HorizontalEndSpace)} {ToS(BoundHeight - AxisChartOptions.LabelExtraHeight - y)}"
                 };
                 _horizontalLines.Add(line);
 
                 var text = new SvgText()
                 {
                     X = HorizontalStartSpace - 10,
-                    Y = BoundHeight - y + 5,
+                    Y = BoundHeight - AxisChartOptions.LabelExtraHeight - y + 5,
                     Value = ToS(lineValue, MudChartParent?.ChartOptions.YAxisFormat)
                 };
                 _horizontalValues.Add(text);
@@ -176,7 +137,7 @@ namespace MudBlazor.Charts
             _verticalLines.Clear();
             _verticalValues.Clear();
 
-            var startPadding = (BarWidth / 2) + (horizontalSpace * (1 - StackedBarWidthRatio) / 2);
+            var startPadding = (_barWidth / 2) + (horizontalSpace * (1 - StackedBarWidthRatio) / 2);
 
             var lastX = 0d;
             for (int j = 0; j <= numVerticalLines; j++)
@@ -199,8 +160,9 @@ namespace MudBlazor.Charts
                 var text = new SvgText()
                 {
                     X = x,
-                    Y = BoundHeight - 2,
-                    Value = label
+                    Y = BoundHeight - 4 - AxisChartOptions.LabelExtraHeight,
+                    Value = label,
+                    Rotation = AxisChartOptions.LabelRotation
                 };
                 _verticalValues.Add(text);
 
@@ -215,7 +177,7 @@ namespace MudBlazor.Charts
         {
             _bars.Clear();
 
-            var startPadding = (BarWidth / 2) + (horizontalSpace * (1 - StackedBarWidthRatio) / 2);
+            var startPadding = (_barWidth / 2) + (horizontalSpace * (1 - StackedBarWidthRatio) / 2);
 
             int numColumns = _series.Any() ? _series.Max(series => series.Data.Length) : 0;
             
@@ -232,7 +194,7 @@ namespace MudBlazor.Charts
                     x = lastX + horizontalSpace;
                 }
 
-                var yStart = BoundHeight - VerticalStartSpace;
+                var yStart = BoundHeight - VerticalStartSpace - AxisChartOptions.LabelExtraHeight;
                 for (int i = 0; i < _series.Count; i++)
                 {
                     var series = _series[i];
@@ -260,34 +222,6 @@ namespace MudBlazor.Charts
 
                 lastX = x;
             }
-
-            //for (int i = 0; i < _series.Count; i++)
-            //{
-            //    var lastX = 0d;
-            //    var series = _series[i];
-            //    for (int j = 0; j < series.Data.Length; j++)
-            //    {
-            //        double dataValue = series.Data[j];
-            //        double segmentHeight = (dataValue / gridYUnits) * verticalSpace;
-            //        double x = HorizontalStartSpace + startPadding + (j * horizontalSpace);
-            //        if (StackedBarWidthRatio == 1 && lastX != 0)
-            //        {
-            //            x = lastX + horizontalSpace;
-            //        }
-
-            //        double yStart = barOffsets[j];
-            //        double yEnd = yStart - segmentHeight;
-
-            //        var bar = new SvgPath()
-            //        {
-            //            Index = i,
-            //            Data = $"M {ToS(x)} {ToS(yStart)} L {ToS(x)} {ToS(yEnd)}"
-            //        };
-            //        _bars.Add(bar);
-            //        barOffsets[j] = yEnd;
-            //        lastX = x;
-            //    }
-            //}
         }
 
         /// <summary>

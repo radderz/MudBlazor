@@ -10,10 +10,4 @@ namespace MudBlazor;
 public partial class MudChart
 {
 
-    /// <summary>
-    /// Specifies the chart should take its bounds from the parent chart.
-    /// </summary>
-    [Parameter]
-    [Category(CategoryTypes.Chart.Behavior)]
-    public bool MatchBoundsToSize { get; set; }
 }
