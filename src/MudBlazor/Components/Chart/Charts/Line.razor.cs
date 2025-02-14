@@ -15,8 +15,10 @@ namespace MudBlazor.Charts
     /// <seealso cref="TimeSeries"/>
     partial class Line : MudCategoryChartBase
     {
-        private const double BoundWidth = 650.0;
-        private const double BoundHeight = 350.0;
+        private const double BoundWidthDefault = 650.0;
+        private const double BoundHeightDefault = 350.0;
+        private double BoundWidth = 650.0;
+        private double BoundHeight = 350.0;
         private const double HorizontalStartSpace = 30.0;
         private const double HorizontalEndSpace = 30.0;
         private const double VerticalStartSpace = 25.0;
@@ -42,6 +44,7 @@ namespace MudBlazor.Charts
         protected override void OnParametersSet()
         {
             base.OnParametersSet();
+
             RebuildChart();
         }
 
@@ -50,6 +53,7 @@ namespace MudBlazor.Charts
             if (MudChartParent != null)
                 _series = MudChartParent.ChartSeries;
 
+            SetBounds();
             ComputeUnitsAndNumberOfLines(out var gridXUnits, out var gridYUnits, out var numHorizontalLines, out var lowestHorizontalLine, out var numVerticalLines);
 
             var horizontalSpace = (BoundWidth - HorizontalStartSpace - HorizontalEndSpace) / Math.Max(1, numVerticalLines - 1);
@@ -58,6 +62,31 @@ namespace MudBlazor.Charts
             GenerateHorizontalGridLines(numHorizontalLines, lowestHorizontalLine, gridYUnits, verticalSpace);
             GenerateVerticalGridLines(numVerticalLines, gridXUnits, horizontalSpace);
             GenerateChartLines(lowestHorizontalLine, gridYUnits, horizontalSpace, verticalSpace);
+        }
+        
+        private void SetBounds()
+        {
+            if (MudChartParent != null && MudChartParent.MatchBoundsToSize)
+            {
+                if (MudChartParent.Width.EndsWith("px")
+                    && MudChartParent.Height.EndsWith("px")
+                    && double.TryParse(MudChartParent.Width.AsSpan(0, MudChartParent.Width.Length - 2), out var width)
+                    && double.TryParse(MudChartParent.Height.AsSpan(0, MudChartParent.Height.Length - 2), out var height))
+                {
+                    BoundWidth = width;
+                    BoundHeight = height;
+                }
+                else
+                {
+                    BoundWidth = BoundWidthDefault;
+                    BoundHeight = BoundHeightDefault;
+                }
+            }
+            else
+            {
+                BoundWidth = BoundWidthDefault;
+                BoundHeight = BoundHeightDefault;
+            }
         }
 
         private void ComputeUnitsAndNumberOfLines(out double gridXUnits, out double gridYUnits, out int numHorizontalLines, out int lowestHorizontalLine, out int numVerticalLines)
