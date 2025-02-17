@@ -1,0 +1,77 @@
+﻿@namespace MudBlazor.Charts
+
+@using Microsoft.JSInterop
+
+@inject IJSRuntime JSRuntime
+
+@{
+    var hasSubtitle = string.IsNullOrWhiteSpace(Subtitle) == false;
+    var subtitleHeight = hasSubtitle ? 16 : 0;
+}
+<g class="svg-tooltip">
+    <!-- The triangle pointing down (8px wide at the top) -->
+    <polygon points="@($"{X - 8},{Y - 8} {X + 8},{Y - 8} {X},{Y - 1.5}")"
+            fill="@Color"
+            stroke="white"
+            stroke-width="2" />
+
+    <rect x="@(X - (_width / 2))" y="@(Y - 30 - subtitleHeight)" width="@_width" height="@(24 + subtitleHeight)" rx="4" ry="4" fill="@Color" stroke="white" stroke-width="1" />
+
+    <polygon points="@($"{X - 10},{Y - 10} {X + 10},{Y - 10} {X},{Y - 1.5}")"
+            fill="@Color"
+            stroke="white"
+            stroke-width="0" />
+
+
+    <text @ref="_hoverTextTitle" x="@X" y="@(Y - 14 - subtitleHeight)" text-anchor="middle" font-size="12px">
+        <tspan x="@X" dy="0">@Title</tspan>
+        @if (hasSubtitle)
+        {
+            <tspan x="@X" dy="16">@Subtitle</tspan>
+        }
+    </text>
+</g>
+
+@code {
+    [Parameter] public string Title { get; set; } = string.Empty;
+    [Parameter] public string Subtitle { get; set; } = string.Empty;
+    [Parameter] public double X { get; set; }
+    [Parameter] public double Y { get; set; }
+    [Parameter] public string Color { get; set; } = string.Empty;
+
+    private ElementReference? _hoverTextTitle = null;
+    private ElementReference? _hoverTextSubTitle = null;
+    private double _width = 80;
+
+    private class BBox
+    {
+        public double X { get; set; }
+        public double Y { get; set; }
+        public double Width { get; set; }
+        public double Height { get; set; }
+    }
+
+    protected override async Task OnAfterRenderAsync(bool firstRender)
+    {
+        if (firstRender)
+        {
+            var bboxTitle = await JSRuntime.InvokeAsync<BBox>("getSvgBBox", _hoverTextTitle);
+
+
+            _width = bboxTitle.Width + 10;
+
+            if (_hoverTextSubTitle != null)
+            {
+                var bboxSubtitle = await JSRuntime.InvokeAsync<BBox>("getSvgBBox", _hoverTextSubTitle);
+                if (bboxSubtitle.Width > _width)
+                {
+                    _width = bboxSubtitle.Width + 10;
+                }
+            }
+
+            _width = Math.Max(_width, 40);
+
+            StateHasChanged();
+        }
+    }
+}

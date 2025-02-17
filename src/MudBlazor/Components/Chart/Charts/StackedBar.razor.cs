@@ -1,4 +1,5 @@
 ﻿using Microsoft.AspNetCore.Components;
+using Microsoft.AspNetCore.Components.Web;
 
 #nullable enable
 namespace MudBlazor.Charts
@@ -13,7 +14,7 @@ namespace MudBlazor.Charts
     /// <seealso cref="TimeSeries"/>
     partial class StackedBar : MudCategoryAxisChartBase
     {
-        private const double OverlapAmount = 0.5; // used to trigger slight overlap so the bars don't have gaps due to floating point rounding
+        private const double BarOverlapAmountFix = 0.5; // used to trigger slight overlap so the bars don't have gaps due to floating point rounding
 
         /// <summary>
         /// The ratio of the width of the bars to the space between them.
@@ -33,6 +34,7 @@ namespace MudBlazor.Charts
         private List<SvgPath> _bars = [];
         private double _barWidth;
         private double _barWidthStroke;
+        private SvgPath? _hoveredBar;
 
         /// <inheritdoc />
         protected override void OnParametersSet()
@@ -82,7 +84,7 @@ namespace MudBlazor.Charts
             {
                 // Optimisation to remove gaps between bars due to floating point rounding causing gaps to be visible between bars.
                 // This givs a very slight overlap which isn't visible without purposeful inspection and zooming.
-                _barWidthStroke += OverlapAmount;
+                _barWidthStroke += BarOverlapAmountFix;
             }
 
             // Compute the stacked total for each column
@@ -180,7 +182,7 @@ namespace MudBlazor.Charts
             var startPadding = (_barWidth / 2) + (horizontalSpace * (1 - StackedBarWidthRatio) / 2);
 
             int numColumns = _series.Any() ? _series.Max(series => series.Data.Length) : 0;
-            
+
             // For each series, stack the bars in each column
             var maxSeriesLength = _series.Any() ? _series.Max(series => series.Data.Length) : 0;
 
@@ -212,7 +214,11 @@ namespace MudBlazor.Charts
                     var bar = new SvgPath()
                     {
                         Index = i,
-                        Data = $"M {ToS(x)} {ToS(yStart)} L {ToS(x)} {ToS(yEnd - OverlapAmount)}"
+                        Data = $"M {ToS(x)} {ToS(yStart)} L {ToS(x)} {ToS(yEnd - BarOverlapAmountFix)}",
+                        LabelXValue = XAxisLabels[j],
+                        LabelYValue = dataValue.ToString(),
+                        LabelX = x,
+                        LabelY = yEnd
                     };
                     _bars.Add(bar);
 
@@ -239,6 +245,16 @@ namespace MudBlazor.Charts
                 };
                 _legends.Add(legend);
             }
+        }
+
+        private void OnBarMouseOver(MouseEventArgs e, SvgPath bar)
+        {
+            _hoveredBar = bar;
+        }
+
+        private void OnBarMouseOut(MouseEventArgs e)
+        {
+            _hoveredBar = null;
         }
     }
 }

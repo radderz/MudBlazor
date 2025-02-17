@@ -34,5 +34,8 @@ namespace MudBlazor
         /// The position of this series within a list.
         /// </summary>
         public int Index { get; set; }
+
+        public string LabelTitleFormat { get; set; } = "{{SERIES_NAME}}";
+        public string LabelSubtitleFormat { get; set; } = "{{X_VALUE}}: {{Y_VALUE}}";
     }
 }
