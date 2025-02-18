@@ -10,7 +10,8 @@
                         TimeLabelSpacing="TimeSpan.FromMinutes(5)"
                         TimeLabelSpacingRounding="_roundedLabelSpacing"
                         TimeLabelSpacingRoundingPadSeries="_roundedLabelSpacingPadSeries"
-                        MatchBoundsToSize="_matchBoundsToSize" />
+                        MatchBoundsToSize="_matchBoundsToSize"
+                        DataMarkerTooltipTimeLabelFormat="yyyy MMM dd HH:mm:ss" />
     <MudGrid>
         <MudItem xs="6">
             <MudText Typo="Typo.body1" Class="py-3">Selected: @(Index < 0 ? "None" : _series[Index].Name)</MudText>
@@ -32,6 +33,9 @@
         </MudItem>
         <MudItem xs="6">
             <MudTextField @bind-Value="_height" Label="Chart Height"></MudTextField>
+        </MudItem>
+        <MudItem xs="6">
+            <MudCheckBox T="bool" ValueChanged="(v)=> _series.ForEach(x=>x.ShowDataMarkers = v)" Label="Show Data Markers"></MudCheckBox>
         </MudItem>
     </MudGrid>
 </div>
@@ -76,7 +80,9 @@
                 Name = "Series 1",
                 Data = Enumerable.Range(-360, 360).Select(x => new TimeSeriesChartSeries.TimeValue(now.AddSeconds(x * 10), _random.Next(6000, 15000))).ToList(),
                 IsVisible = true,
-                Type = TimeSeriesDisplayType.Line
+                LineDisplayType = LineDisplayType.Line,
+                DataMarkerTooltipTitleFormat = "{{X_VALUE}}",
+                DataMarkerTooltipSubtitleFormat = "{{Y_VALUE}}"
             };
 
         _chart2 = new TimeSeriesChartSeries
@@ -85,7 +91,9 @@
                 Name = "Series 2",
                 Data = Enumerable.Range(-360, 360).Select(x => new TimeSeriesChartSeries.TimeValue(now.AddSeconds(x * 10), _random.Next(0, 7000))).ToList(),
                 IsVisible = true,
-                Type = TimeSeriesDisplayType.Area
+                LineDisplayType = LineDisplayType.Area,
+                DataMarkerTooltipTitleFormat = "{{X_VALUE}}",
+                DataMarkerTooltipSubtitleFormat = "{{Y_VALUE}}"
             };
 
         _chart3 = new TimeSeriesChartSeries
@@ -94,7 +102,9 @@
                 Name = "Series 3",
                 Data = Enumerable.Range(-90, 60).Select(x => new TimeSeriesChartSeries.TimeValue(now.AddSeconds(x * 30), _random.Next(4000, 10000))).ToList(),
                 IsVisible = true,
-                Type = TimeSeriesDisplayType.Line
+                LineDisplayType = LineDisplayType.Line,
+                DataMarkerTooltipTitleFormat = "{{X_VALUE}}",
+                DataMarkerTooltipSubtitleFormat = "{{Y_VALUE}}"
             };
 
         _series.Add(_chart1);

@@ -136,7 +136,7 @@ namespace MudBlazor.UnitTests.Charts
                         Name = "Series 1",
                         Data = new[] {-1, 0, 1, 2}.Select(x => new TimeSeriesChartSeries.TimeValue(time.AddDays(x), 1000)).ToList(),
                         IsVisible = true,
-                        Type = TimeSeriesDisplayType.Line
+                        LineDisplayType = LineDisplayType.Line
                     }
                 })
                 .Add(p => p.TimeLabelSpacing, TimeSpan.FromDays(1))

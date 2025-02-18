@@ -2,7 +2,15 @@
 @using System.Globalization;
 @inherits MudTimeSeriesChartBase
 
-<svg @attributes="UserAttributes" class="mud-chart-line mud-ltr" width="@MudChartParent?.Width" height="@MudChartParent?.Height" viewBox="0 0 @BoundWidth @BoundHeight">
+@{
+    var lineStrokeWidth = MudChartParent?.ChartOptions.LineStrokeWidth ?? 3;
+    var dataPointRadius = Math.Max(lineStrokeWidth / 2 + 2, 3);
+    var dataPointHoverRadius = dataPointRadius + 1;
+    var dataPointStroke = 2;
+    var dataPointLabelOffset = dataPointHoverRadius + (dataPointStroke / 2);
+}
+
+<svg @attributes="UserAttributes" class="mud-chart-line mud-ltr" width="@MudChartParent?.Width" height="@MudChartParent?.Height" viewBox="0 0 @BoundWidth @BoundHeight" style="overflow: visible;">
     <g class="mud-charts-grid">
         <g class="mud-charts-gridlines-yaxis">
             @foreach (var horizontalLine in _horizontalLines)
@@ -44,19 +52,66 @@
         @foreach (var chartLine in _chartLines)
         {
             var series = _series[chartLine.Index];
-            var colour = MudChartParent?.ChartOptions.ChartPalette.GetValue(chartLine.Index % MudChartParent.ChartOptions.ChartPalette.Length);
+            var color = MudChartParent?.ChartOptions.ChartPalette.GetValue(chartLine.Index % MudChartParent.ChartOptions.ChartPalette.Length);
+            var showDataMarkers = _series[chartLine.Index].ShowDataMarkers;
 
-            <path class="mud-chart-line" @onclick="() => SelectedIndex = chartLine.Index" fill="none" stroke="@colour" stroke-opacity="@series.StrokeOpacity" stroke-width="@MudChartParent?.ChartOptions.LineStrokeWidth" d="@chartLine.Data"></path>
+            <path class="mud-chart-line" @onclick="() => SelectedIndex = chartLine.Index" fill="none" stroke="@color" stroke-opacity="@series.StrokeOpacity" stroke-width="@MudChartParent?.ChartOptions.LineStrokeWidth" d="@chartLine.Data"></path>
 
-            if (series.Type == TimeSeriesDisplayType.Area)
+            if (series.LineDisplayType == LineDisplayType.Area)
             {
                 var chartArea = _chartAreas[chartLine.Index];
-                <path class="mud-chart-line" @onclick="() => SelectedIndex = chartLine.Index" fill="@colour" fill-opacity="@series.FillOpacity" d="@chartArea.Data"></path>
+                <path class="mud-chart-line" @onclick="() => SelectedIndex = chartLine.Index" fill="@color" fill-opacity="@series.FillOpacity" d="@chartArea.Data"></path>
+            }
+
+            @foreach (var item in _chartDataPoints[chartLine.Index].OrderBy(x => x.Index))
+            {
+                if (showDataMarkers && item != _hoveredDataPoint)
+                {
+                    // Unhovered data point
+                    <circle class="mud-chart-serie mud-donut-segment" @onclick="() => SelectedIndex = chartLine.Index" stroke="@color" stroke-width="@dataPointStroke"
+                            cx="@ToS(item.CX)"
+                            cy="@ToS(item.CY)"
+                            r="@ToS(dataPointRadius)">
+                    </circle>
+                }
+
+                // This is a hoverable circle that is invisible until it is the hovered point but has a larger radius to make it easier to hover over
+                <circle class="mud-chart-serie mud-donut-segment" @onclick="() => SelectedIndex = chartLine.Index" fill="@(item == _hoveredDataPoint ? color : string.Empty)" stroke="@color" stroke-width="@dataPointStroke" opacity="@(item == _hoveredDataPoint ? 1 : 0)"
+                        cx="@ToS(item.CX)"
+                        cy="@ToS(item.CY)"
+                        r="@ToS(dataPointHoverRadius)"
+                        @onmouseover="(e) => OnDataPointMouseOver(e, item)"
+                        @onmouseout="OnDataPointMouseOut">
+                </circle>
             }
         }
     </g>
 
     @MudChartParent?.CustomGraphics
+
+    @* Render the tooltip as an SVG group when a bar is hovered *@
+    @if (_hoveredDataPoint is not null)
+    {
+        var seriesIndex = _chartDataPoints.First(x => x.Value.Contains(_hoveredDataPoint)).Key;
+
+        var color = MudChartParent?.ChartOptions.ChartPalette.GetValue(seriesIndex % MudChartParent.ChartOptions.ChartPalette.Length)?.ToString() ?? string.Empty;
+        var series = _series[seriesIndex];
+
+        if (string.IsNullOrWhiteSpace(series.DataMarkerTooltipTitleFormat) == false)
+        {
+            var tooltipTitle = series.DataMarkerTooltipTitleFormat
+            .Replace("{{SERIES_NAME}}", series.Name)
+            .Replace("{{X_VALUE}}", _hoveredDataPoint.LabelXValue)
+            .Replace("{{Y_VALUE}}", _hoveredDataPoint.LabelYValue);
+
+            var tooltipSubtitle = series.DataMarkerTooltipSubtitleFormat?
+            .Replace("{{SERIES_NAME}}", series.Name)
+            .Replace("{{X_VALUE}}", _hoveredDataPoint.LabelXValue)
+            .Replace("{{Y_VALUE}}", _hoveredDataPoint.LabelYValue) ?? string.Empty;
+
+            <ChartTooltip Title="@tooltipTitle" Subtitle="@tooltipSubtitle" Color="@color" X="_hoveredDataPoint.LabelX" Y="_hoveredDataPoint.LabelY - dataPointLabelOffset" />
+        }
+    }
 </svg>
 @if (XAxisTitle is not null)
 {

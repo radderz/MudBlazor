@@ -23,5 +23,6 @@ namespace MudBlazor
         /// The text to display.
         /// </summary>
         public string? Value { get; set; }
+        public int Rotation { get; internal set; }
     }
 }

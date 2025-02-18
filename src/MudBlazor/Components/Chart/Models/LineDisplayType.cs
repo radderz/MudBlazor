@@ -1,7 +1,7 @@
 ﻿#nullable enable
 namespace MudBlazor;
 
-public enum TimeSeriesDisplayType
+public enum LineDisplayType
 {
     Line,
     Area,

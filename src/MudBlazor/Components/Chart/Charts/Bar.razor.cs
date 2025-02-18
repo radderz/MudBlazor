@@ -11,21 +11,8 @@ namespace MudBlazor.Charts
     /// <seealso cref="Pie"/>
     /// <seealso cref="StackedBar"/>
     /// <seealso cref="TimeSeries"/>
-    partial class Bar : MudCategoryChartBase
+    partial class Bar : MudCategoryAxisChartBase
     {
-        private const double BoundWidth = 650.0;
-        private const double BoundHeight = 350.0;
-        private const double HorizontalStartSpace = 30.0;
-        private const double HorizontalEndSpace = 30.0;
-        private const double VerticalStartSpace = 25.0;
-        private const double VerticalEndSpace = 25.0;
-
-        /// <summary>
-        /// The chart, if any, containing this component.
-        /// </summary>
-        [CascadingParameter]
-        public MudChart? MudChartParent { get; set; }
-
         private List<SvgPath> _horizontalLines = [];
         private List<SvgText> _horizontalValues = [];
 
@@ -42,9 +29,15 @@ namespace MudBlazor.Charts
         {
             base.OnParametersSet();
 
+            RebuildChart();
+        }
+
+        private void RebuildChart()
+        {
             if (MudChartParent != null)
                 _series = MudChartParent.ChartSeries;
 
+            SetBounds();
             ComputeUnitsAndNumberOfLines(out var gridXUnits, out var gridYUnits, out var numHorizontalLines, out var lowestHorizontalLine, out var numVerticalLines);
 
             var horizontalSpace = (BoundWidth - HorizontalStartSpace - HorizontalEndSpace) / Math.Max(1, numVerticalLines - 1);
