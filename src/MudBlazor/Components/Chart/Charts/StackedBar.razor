@@ -65,21 +65,20 @@
         var color = MudChartParent?.ChartOptions.ChartPalette.GetValue(_hoveredBar.Index % MudChartParent.ChartOptions.ChartPalette.Length)?.ToString() ?? string.Empty;
         var series = _series[_hoveredBar.Index];
 
-        var tooltipTitle = series.LabelTitleFormat
-            .Replace("{{SERIES_NAME}}", series.Name)
-            .Replace("{{X_VALUE}}", _hoveredBar.LabelXValue)
-            .Replace("{{Y_VALUE}}", _hoveredBar.LabelYValue);
+        if (string.IsNullOrWhiteSpace(series.DataMarkerTooltipTitleFormat) == false)
+        {
+            var tooltipTitle = series.DataMarkerTooltipTitleFormat
+                .Replace("{{SERIES_NAME}}", series.Name)
+                .Replace("{{X_VALUE}}", _hoveredBar.LabelXValue)
+                .Replace("{{Y_VALUE}}", _hoveredBar.LabelYValue);
 
-        var tooltipSubtitle = series.LabelSubtitleFormat
-            .Replace("{{SERIES_NAME}}", series.Name)
-            .Replace("{{X_VALUE}}", _hoveredBar.LabelXValue)
-            .Replace("{{Y_VALUE}}", _hoveredBar.LabelYValue);
+            var tooltipSubtitle = series.DataMarkerTooltipSubtitleFormat?
+                .Replace("{{SERIES_NAME}}", series.Name)
+                .Replace("{{X_VALUE}}", _hoveredBar.LabelXValue)
+                .Replace("{{Y_VALUE}}", _hoveredBar.LabelYValue) ?? string.Empty;
 
-        <ChartTooltip Title="@tooltipTitle" Subtitle="@tooltipSubtitle" Color="@color" X="_hoveredBar.LabelX" Y="_hoveredBar.LabelY" />
+            <ChartTooltip Title="@tooltipTitle" Subtitle="@tooltipSubtitle" Color="@color" X="_hoveredBar.LabelX" Y="_hoveredBar.LabelY" />
+        }
     }
 </svg>
 <Legend Data="@_legends" />
-
-@code {
-#nullable enable
-}

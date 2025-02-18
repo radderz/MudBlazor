@@ -1,5 +1,6 @@
 ﻿using System.Text;
 using Microsoft.AspNetCore.Components;
+using Microsoft.AspNetCore.Components.Web;
 
 #nullable enable
 namespace MudBlazor.Charts
@@ -35,6 +36,8 @@ namespace MudBlazor.Charts
 
         private List<SvgPath> _chartLines = [];
         private Dictionary<int, SvgPath> _chartAreas = [];
+        private Dictionary<int, List<SvgCircle>> _chartDataPoints = [];
+        private SvgCircle? _hoveredDataPoint;
 
         protected override void OnParametersSet()
         {
@@ -71,7 +74,7 @@ namespace MudBlazor.Charts
                 var minY = _series.SelectMany(series => series.Data).Min(x => x.Value);
                 var maxY = _series.SelectMany(series => series.Data).Max(x => x.Value);
 
-                var includeYAxisZeroPoint = MudChartParent?.ChartOptions.YAxisRequireZeroPoint ?? _series.Any(x => x.Type == TimeSeriesDisplayType.Area);
+                var includeYAxisZeroPoint = MudChartParent?.ChartOptions.YAxisRequireZeroPoint ?? _series.Any(x => x.LineDisplayType == LineDisplayType.Area);
                 if (includeYAxisZeroPoint)
                 {
                     minY = Math.Min(minY, 0); // we want to include the 0 in the grid
@@ -170,6 +173,7 @@ namespace MudBlazor.Charts
             _legends.Clear();
             _chartLines.Clear();
             _chartAreas.Clear();
+            _chartDataPoints.Clear();
 
             if (_series.Count == 0)
                 return;
@@ -180,11 +184,12 @@ namespace MudBlazor.Charts
 
             for (var i = 0; i < _series.Count; i++)
             {
-                StringBuilder chartLine = new StringBuilder();
-                StringBuilder chartArea = new StringBuilder();
+                var chartLine = new StringBuilder();
+                var chartArea = new StringBuilder();
 
                 var series = _series[i];
                 var data = series.Data;
+                var chartDataCirlces = _chartDataPoints[i] = [];
 
                 if (data.Count <= 0)
                     continue;
@@ -252,7 +257,7 @@ namespace MudBlazor.Charts
                         chartLine.Append(' ');
                         chartLine.Append(ToS(y));
 
-                        if (j == data.Count - 1 && series.Type == TimeSeriesDisplayType.Area)
+                        if (j == data.Count - 1 && series.LineDisplayType == LineDisplayType.Area)
                         {
                             chartArea.Append(chartLine.ToString()); // the line up to this point is the same as the area, so we can reuse it
 
@@ -270,12 +275,25 @@ namespace MudBlazor.Charts
                             chartArea.Append(' ');
                             chartArea.Append(ToS(zeroPointY));
 
-                            // add an the first point again to close the area
+                            // add the first point again to close the area
                             chartArea.Append(" L ");
                             chartArea.Append(ToS(firstPointX));
                             chartArea.Append(' ');
                             chartArea.Append(ToS(firstPointY));
                         }
+
+                        var dataValue = data[j];
+
+                        chartDataCirlces.Add(new()
+                        {
+                            Index = j,
+                            CX = x,
+                            CY = y,
+                            LabelX = x,
+                            LabelXValue = dataValue.DateTime.ToString(MudChartParent?.DataMarkerTooltipTimeLabelFormat ?? "{0}"),
+                            LabelY = y,
+                            LabelYValue = dataValue.Value.ToString(),
+                        });
                     }
                 }
                 if (_series[i].IsVisible)
@@ -287,7 +305,7 @@ namespace MudBlazor.Charts
                     };
                     _chartLines.Add(line);
 
-                    if (series.Type == TimeSeriesDisplayType.Area)
+                    if (series.LineDisplayType == LineDisplayType.Area)
                     {
                         var area = new SvgPath()
                         {
@@ -314,6 +332,16 @@ namespace MudBlazor.Charts
             var series = _series[legend.Index];
             series.IsVisible = legend.Visible;
             RebuildChart();
+        }
+
+        private void OnDataPointMouseOver(MouseEventArgs e, SvgCircle dataPoint)
+        {
+            _hoveredDataPoint = dataPoint;
+        }
+
+        private void OnDataPointMouseOut(MouseEventArgs e)
+        {
+            _hoveredDataPoint = null;
         }
     }
 }

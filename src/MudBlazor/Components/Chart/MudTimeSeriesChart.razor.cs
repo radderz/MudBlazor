@@ -27,6 +27,13 @@ namespace MudBlazor
         public string TimeLabelFormat { get; set; } = "HH:mm";
 
         /// <summary>
+        /// A way to specify datetime formats for timestamp labels used in datapoint marker labels, default of HH:mm.
+        /// </summary>
+        [Parameter]
+        [Category(CategoryTypes.Chart.Behavior)]
+        public string DataMarkerTooltipTimeLabelFormat { get; set; } = "HH:mm";
+
+        /// <summary>
         /// Specifies the title for the X axis.
         /// </summary>
         [Parameter]
