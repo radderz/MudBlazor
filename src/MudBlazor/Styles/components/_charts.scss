@@ -1,5 +1,8 @@
 .mud-chart {
-  display: flex;
+  display: grid;
+  grid-template-rows: 1fr auto;
+  min-height: fit-content;
+  min-width: fit-content;
 
   &.mud-chart-legend-bottom {
     flex-direction: column;

@@ -15,7 +15,7 @@
             stroke="white"
             stroke-width="2" />
 
-    <rect x="@(X - (_width / 2))" y="@(Y - 30 - subtitleHeight)" width="@_width" height="@(24 + subtitleHeight)" rx="4" ry="4" fill="@Color" stroke="white" stroke-width="1" />
+    <rect x="@(X - (_boxWidth / 2))" y="@(Y - 30 - subtitleHeight)" width="@_boxWidth" height="@(24 + subtitleHeight)" rx="4" ry="4" fill="@Color" stroke="white" stroke-width="1" />
 
     <polygon points="@($"{X - 10},{Y - 10} {X + 10},{Y - 10} {X},{Y - 1.5}")"
             fill="@Color"
@@ -40,8 +40,7 @@
     [Parameter] public string Color { get; set; } = string.Empty;
 
     private ElementReference? _hoverTextTitle = null;
-    private ElementReference? _hoverTextSubTitle = null;
-    private double _width = 80;
+    private double _boxWidth = 80;
 
     private class BBox
     {
@@ -55,21 +54,9 @@
     {
         if (firstRender)
         {
-            var bboxTitle = await JSRuntime.InvokeAsync<BBox>("getSvgBBox", _hoverTextTitle);
+            var bboxTitle = await JSRuntime.InvokeAsync<BBox>("mudGetSvgBBox", _hoverTextTitle);
 
-
-            _width = bboxTitle.Width + 10;
-
-            if (_hoverTextSubTitle != null)
-            {
-                var bboxSubtitle = await JSRuntime.InvokeAsync<BBox>("getSvgBBox", _hoverTextSubTitle);
-                if (bboxSubtitle.Width > _width)
-                {
-                    _width = bboxSubtitle.Width + 10;
-                }
-            }
-
-            _width = Math.Max(_width, 40);
+            _boxWidth = Math.Max(bboxTitle.Width, 30) + 10; // Minimum width for the text of 30px with 10px padding (5px each side)
 
             StateHasChanged();
         }

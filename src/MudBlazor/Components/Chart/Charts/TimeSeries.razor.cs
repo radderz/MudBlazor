@@ -1,8 +1,12 @@
 ﻿using System.Text;
 using Microsoft.AspNetCore.Components;
 using Microsoft.AspNetCore.Components.Web;
+using Microsoft.JSInterop;
+using MudBlazor.Interop;
 
 #nullable enable
+#pragma warning disable CS0618
+
 namespace MudBlazor.Charts
 {
     /// <summary>
@@ -17,12 +21,16 @@ namespace MudBlazor.Charts
     {
         private const double BoundWidthDefault = 800;
         private const double BoundHeightDefault = 350;
-        private double BoundWidth = BoundWidthDefault;
-        private double BoundHeight = BoundHeightDefault;
         private const double HorizontalStartSpace = 80.0; // needs space to have the full label visible and be even to the end space
         private const double HorizontalEndSpace = 80.0; // needs space to have the full label visible and be even to the start space
         private const double VerticalStartSpace = 25.0;
         private const double VerticalEndSpace = 25.0;
+        private double _boundWidth = BoundWidthDefault;
+        private double _boundHeight = BoundHeightDefault;
+        private ElementSize? _elementSize = null;
+
+        [Inject]
+        private IJSRuntime JsRuntime { get; set; } = null!;
 
         [CascadingParameter]
         public MudTimeSeriesChartBase? MudChartParent { get; set; }
@@ -44,29 +52,31 @@ namespace MudBlazor.Charts
         private DateTime _minDateTime;
         private DateTime _maxDateTime;
         private TimeSpan _minDateLabelOffset;
+        private DotNetObjectReference<TimeSeries>? _dotNetObjectReference;
+        private ElementReference _elementReference;
+
+        public TimeSeries()
+        {
+            _dotNetObjectReference = DotNetObjectReference.Create(this);
+        }
 
         protected override void OnParametersSet()
         {
             base.OnParametersSet();
 
-            if (MudChartParent != null && MudChartParent.MatchBoundsToSize)
-            {
-                if (MudChartParent.Width.EndsWith("px")
-                    && MudChartParent.Height.EndsWith("px")
-                    && double.TryParse(MudChartParent.Width.AsSpan(0, MudChartParent.Width.Length - 2), out var width)
-                    && double.TryParse(MudChartParent.Height.AsSpan(0, MudChartParent.Height.Length - 2), out var height))
-                {
-                    BoundWidth = width;
-                    BoundHeight = height;
-                }
-            }
-            else
-            {
-                BoundWidth = BoundWidthDefault;
-                BoundHeight = BoundHeightDefault;
-            }
-
             RebuildChart();
+        }
+
+        protected override async Task OnAfterRenderAsync(bool firstRender)
+        {
+            await base.OnAfterRenderAsync(firstRender);
+
+            if (firstRender)
+            {
+                _elementSize = await JsRuntime.InvokeAsync<ElementSize>("mudObserveElementSize", _dotNetObjectReference, _elementReference);
+
+                OnElementSizeChanged(_elementSize);
+            }
         }
 
         private void RebuildChart()
@@ -74,15 +84,59 @@ namespace MudBlazor.Charts
             if (MudChartParent != null)
                 _series = MudChartParent.ChartSeries;
 
+            SetBounds();
             ComputeMinAndMaxDateTimes();
-            ComputeUnitsAndNumberOfLines(out double gridXUnits, out double gridYUnits, out int numHorizontalLines, out int lowestHorizontalLine, out int numVerticalLines);
+            ComputeUnitsAndNumberOfLines(out var gridXUnits, out var gridYUnits, out var numHorizontalLines, out var lowestHorizontalLine, out var numVerticalLines);
 
-            var horizontalSpace = (BoundWidth - HorizontalStartSpace - HorizontalEndSpace) / Math.Max(1, numVerticalLines - 1);
-            var verticalSpace = (BoundHeight - VerticalStartSpace - VerticalEndSpace) / Math.Max(1, numHorizontalLines - 1);
+            var horizontalSpace = (_boundWidth - HorizontalStartSpace - HorizontalEndSpace) / Math.Max(1, numVerticalLines - 1);
+            var verticalSpace = (_boundHeight - VerticalStartSpace - VerticalEndSpace - AxisChartOptions.LabelExtraHeight) / Math.Max(1, numHorizontalLines - 1);
 
             GenerateHorizontalGridLines(numHorizontalLines, lowestHorizontalLine, gridYUnits, verticalSpace);
             GenerateVerticalGridLines(numVerticalLines, gridXUnits, horizontalSpace);
             GenerateChartLines(lowestHorizontalLine, gridYUnits, horizontalSpace, verticalSpace);
+        }
+
+        private void SetBounds()
+        {
+            _boundWidth = BoundWidthDefault;
+            _boundHeight = BoundHeightDefault;
+
+            if (MudChartParent != null && (MudChartParent.AxisChartOptions.MatchBoundsToSize == true || MudChartParent.MatchBoundsToSize == true)) // backwards compatibilitly to the mudchartparent approach
+            {
+                if (_elementSize != null)
+                {
+                    _boundWidth = _elementSize.Width;
+                    _boundHeight = _elementSize.Height;
+                }
+                else if (MudChartParent.Width.EndsWith("px")
+                    && MudChartParent.Height.EndsWith("px")
+                    && double.TryParse(MudChartParent.Width.AsSpan(0, MudChartParent.Width.Length - 2), out var width)
+                    && double.TryParse(MudChartParent.Height.AsSpan(0, MudChartParent.Height.Length - 2), out var height))
+                {
+                    _boundWidth = width;
+                    _boundHeight = height;
+                }
+            }
+        }
+
+        [JSInvokable]
+        public void OnElementSizeChanged(ElementSize elementSize)
+        {
+            if (elementSize == null)
+                return;
+
+            _elementSize = elementSize;
+
+
+            if (AxisChartOptions.MatchBoundsToSize == false)
+                return;
+
+            if (_boundWidth == _elementSize.Width && _boundHeight == _elementSize.Height)
+                return;
+
+            RebuildChart();
+
+            StateHasChanged();
         }
 
         private void ComputeMinAndMaxDateTimes()
@@ -177,7 +231,7 @@ namespace MudBlazor.Charts
                 var line = new SvgPath()
                 {
                     Index = i,
-                    Data = $"M {ToS(HorizontalStartSpace)} {ToS((BoundHeight - y))} L {ToS((BoundWidth - HorizontalEndSpace))} {ToS((BoundHeight - y))}"
+                    Data = $"M {ToS(HorizontalStartSpace)} {ToS((_boundHeight - AxisChartOptions.LabelExtraHeight - y))} L {ToS((_boundWidth - HorizontalEndSpace))} {ToS((_boundHeight - AxisChartOptions.LabelExtraHeight - y))}"
                 };
                 _horizontalLines.Add(line);
 
@@ -185,7 +239,7 @@ namespace MudBlazor.Charts
                 var lineValue = new SvgText()
                 {
                     X = HorizontalStartSpace - 10,
-                    Y = BoundHeight - y + 5,
+                    Y = _boundHeight - AxisChartOptions.LabelExtraHeight - y + 5,
                     Value = ToS(startGridY, MudChartParent?.ChartOptions.YAxisFormat)
                 };
                 _horizontalValues.Add(lineValue);
@@ -208,20 +262,20 @@ namespace MudBlazor.Charts
             {
                 // offset the first label to be _minDateLabelOffset away from the minDateTime
 
-                startOffset = (_minDateLabelOffset.TotalMilliseconds / (_maxDateTime - _minDateTime).TotalMilliseconds) * (BoundWidth - HorizontalStartSpace - HorizontalEndSpace);
+                startOffset = (_minDateLabelOffset.TotalMilliseconds / (_maxDateTime - _minDateTime).TotalMilliseconds) * (_boundWidth - HorizontalStartSpace - HorizontalEndSpace);
             }
 
             for (var i = 0; i < numVerticalLines; i++)
             {
                 var x = startOffset + HorizontalStartSpace + i * horizontalSpace;
 
-                if (x > BoundWidth - HorizontalEndSpace)
+                if (x > _boundWidth - HorizontalEndSpace)
                     break; // we are out of bounds
 
                 var line = new SvgPath()
                 {
                     Index = i,
-                    Data = $"M {ToS(x)} {ToS((BoundHeight - VerticalStartSpace))} L {ToS(x)} {ToS(VerticalEndSpace)}"
+                    Data = $"M {ToS(x)} {ToS((_boundHeight - VerticalStartSpace))} L {ToS(x)} {ToS(VerticalEndSpace)}"
                 };
                 _verticalLines.Add(line);
 
@@ -230,7 +284,7 @@ namespace MudBlazor.Charts
                 var lineValue = new SvgText()
                 {
                     X = x,
-                    Y = BoundHeight - 2,
+                    Y = _boundHeight - (AxisChartOptions.LabelExtraHeight / 2) - 10,
                     Value = xLabels.ToString(TimeLabelFormat),
                 };
                 _verticalValues.Add(lineValue);
@@ -252,7 +306,6 @@ namespace MudBlazor.Charts
             for (var i = 0; i < _series.Count; i++)
             {
                 var chartLine = new StringBuilder();
-                var chartArea = new StringBuilder();
 
                 var series = _series[i];
                 var data = series.Data;
@@ -270,20 +323,19 @@ namespace MudBlazor.Charts
                     var diffFromMin = dateTime - _minDateTime;
 
                     var gridValue = (data[index].Value / gridYUnits - lowestHorizontalLine) * verticalSpace;
-                    var y = BoundHeight - VerticalStartSpace - gridValue;
+                    var y = _boundHeight - VerticalStartSpace - AxisChartOptions.LabelExtraHeight - gridValue;
 
                     if (fullDateTimeDiff.TotalMilliseconds == 0)
                         return (HorizontalStartSpace, y);
 
-                    var x = HorizontalStartSpace + diffFromMin.TotalMilliseconds / fullDateTimeDiff.TotalMilliseconds * (BoundWidth - HorizontalStartSpace - HorizontalEndSpace);
+                    var x = HorizontalStartSpace + diffFromMin.TotalMilliseconds / fullDateTimeDiff.TotalMilliseconds * (_boundWidth - HorizontalStartSpace - HorizontalEndSpace);
 
                     return (x, y);
                 }
-
                 double GetYForZeroPoint()
                 {
                     var gridValue = (0 / gridYUnits - lowestHorizontalLine) * verticalSpace;
-                    var y = BoundHeight - VerticalStartSpace - gridValue;
+                    var y = _boundHeight - VerticalStartSpace - AxisChartOptions.LabelExtraHeight - gridValue;
 
                     return y;
                 }
@@ -301,17 +353,12 @@ namespace MudBlazor.Charts
                 }
                 else
                 {
-                    var firstPointX = 0d;
-                    var firstPointY = 0d;
-                    var zeroPointY = GetYForZeroPoint();
                     for (var j = 0; j < data.Count; j++)
                     {
                         var (x, y) = GetXYForDataPoint(j);
 
                         if (j == 0)
                         {
-                            firstPointX = x;
-                            firstPointY = y;
                             chartLine.Append("M ");
                         }
                         else
@@ -320,31 +367,6 @@ namespace MudBlazor.Charts
                         chartLine.Append(ToS(x));
                         chartLine.Append(' ');
                         chartLine.Append(ToS(y));
-
-                        if (j == data.Count - 1 && series.LineDisplayType == LineDisplayType.Area)
-                        {
-                            chartArea.Append(chartLine.ToString()); // the line up to this point is the same as the area, so we can reuse it
-
-                            // add an extra point based on the x of the last point and 0 to add the area to the bottom
-
-                            chartArea.Append(" L ");
-                            chartArea.Append(ToS(x));
-                            chartArea.Append(' ');
-                            chartArea.Append(ToS(zeroPointY));
-
-                            // add an extra point based on the x of the first point and 0 to close the area
-
-                            chartArea.Append(" L ");
-                            chartArea.Append(ToS(firstPointX));
-                            chartArea.Append(' ');
-                            chartArea.Append(ToS(zeroPointY));
-
-                            // add the first point again to close the area
-                            chartArea.Append(" L ");
-                            chartArea.Append(ToS(firstPointX));
-                            chartArea.Append(' ');
-                            chartArea.Append(ToS(firstPointY));
-                        }
 
                         var dataValue = data[j];
 
@@ -371,6 +393,34 @@ namespace MudBlazor.Charts
 
                     if (series.LineDisplayType == LineDisplayType.Area)
                     {
+                        var chartArea = new StringBuilder();
+
+                        var zeroPointY = GetYForZeroPoint();
+                        var (firstPointX, firstPointY) = GetXYForDataPoint(0);
+                        var (lastPointX, _) = GetXYForDataPoint(data.Count - 1);
+
+                        chartArea.Append(chartLine.ToString()); // the line up to this point is the same as the area, so we can reuse it
+
+                        // add an extra point based on the x of the last point and 0 to add the area to the bottom
+
+                        chartArea.Append(" L ");
+                        chartArea.Append(ToS(lastPointX));
+                        chartArea.Append(' ');
+                        chartArea.Append(ToS(zeroPointY));
+
+                        // add an extra point based on the x of the first point and 0 to close the area
+
+                        chartArea.Append(" L ");
+                        chartArea.Append(ToS(firstPointX));
+                        chartArea.Append(' ');
+                        chartArea.Append(ToS(zeroPointY));
+
+                        // add an the first point again to close the area
+                        chartArea.Append(" L ");
+                        chartArea.Append(ToS(firstPointX));
+                        chartArea.Append(' ');
+                        chartArea.Append(ToS(firstPointY));
+
                         var area = new SvgPath()
                         {
                             Index = i,

@@ -68,6 +68,7 @@ namespace MudBlazor
         /// </summary>
         [Parameter]
         [Category(CategoryTypes.Chart.Behavior)]
+        [Obsolete("Use MatchBoundsToSize from the MudChartParents AxisChartOptions.MatchBoundsToSize instead. This will be removed in a future major version.", false)]
         public bool MatchBoundsToSize { get; set; }
     }
 }

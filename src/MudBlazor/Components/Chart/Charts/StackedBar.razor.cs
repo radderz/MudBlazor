@@ -16,12 +16,6 @@ namespace MudBlazor.Charts
     {
         private const double BarOverlapAmountFix = 0.5; // used to trigger slight overlap so the bars don't have gaps due to floating point rounding
 
-        /// <summary>
-        /// The ratio of the width of the bars to the space between them.
-        /// </summary>
-        [CascadingParameter(Name = "StackedBarWidthRatio")]
-        public double StackedBarWidthRatio { get; set; } = 0.8d;
-
         private List<SvgPath> _horizontalLines = [];
         private List<SvgText> _horizontalValues = [];
 
@@ -41,10 +35,10 @@ namespace MudBlazor.Charts
         {
             base.OnParametersSet();
 
-            RebuidChart();
+            RebuildChart();
         }
 
-        private void RebuidChart()
+        protected override void RebuildChart()
         {
             if (MudChartParent != null)
                 _series = MudChartParent.ChartSeries;
@@ -53,8 +47,8 @@ namespace MudBlazor.Charts
             ComputeStackedUnitsAndNumberOfLines(out var gridXUnits, out var gridYUnits, out var numHorizontalLines, out var numVerticalLines);
 
             // Calculate spacing – note the horizontal space is computed so that the vertical grid lines line up
-            double horizontalSpace = Math.Round((BoundWidth - HorizontalStartSpace - HorizontalEndSpace) / (numVerticalLines > 1 ? (numVerticalLines) : 1), 1);
-            double verticalSpace = (BoundHeight - VerticalStartSpace - VerticalEndSpace - AxisChartOptions.LabelExtraHeight) / (numHorizontalLines > 1 ? (numHorizontalLines) : 1);
+            double horizontalSpace = Math.Round((_boundWidth - HorizontalStartSpace - HorizontalEndSpace) / (numVerticalLines > 1 ? (numVerticalLines) : 1), 1);
+            double verticalSpace = (_boundHeight - VerticalStartSpace - VerticalEndSpace - AxisChartOptions.LabelExtraHeight) / (numHorizontalLines > 1 ? (numHorizontalLines) : 1);
 
             GenerateHorizontalGridLines(numHorizontalLines, gridYUnits, verticalSpace);
             GenerateVerticalGridLines(numVerticalLines, horizontalSpace);
@@ -79,16 +73,24 @@ namespace MudBlazor.Charts
             // Determine the number of columns (i.e. vertical grid lines)
             numVerticalLines = _series.Any() ? _series.Max(series => series.Data.Length) : 0;
 
-            _barWidthStroke = _barWidth = (BoundWidth - HorizontalStartSpace - HorizontalEndSpace) / (numVerticalLines > 1 ? (numVerticalLines) : 1) * StackedBarWidthRatio;
-            if (StackedBarWidthRatio == 1)
+            _barWidthStroke = _barWidth = (_boundWidth - HorizontalStartSpace - HorizontalEndSpace) / (numVerticalLines > 1 ? (numVerticalLines) : 1) * AxisChartOptions.StackedBarWidthRatio;
+            if (AxisChartOptions.StackedBarWidthRatio == 1)
             {
                 // Optimisation to remove gaps between bars due to floating point rounding causing gaps to be visible between bars.
                 // This givs a very slight overlap which isn't visible without purposeful inspection and zooming.
                 _barWidthStroke += BarOverlapAmountFix;
             }
+            else
+            {
+                var roundedBarWidth = Math.Round(_barWidth, 0);
+                if (roundedBarWidth * numVerticalLines < (_boundWidth - HorizontalStartSpace - HorizontalEndSpace))
+                {
+                    _barWidthStroke = _barWidth = roundedBarWidth;
+                }
+            }
 
-            // Compute the stacked total for each column
-            double[] stackedTotals = new double[numVerticalLines];
+                // Compute the stacked total for each column
+                double[] stackedTotals = new double[numVerticalLines];
             for (int j = 0; j < numVerticalLines; j++)
             {
                 foreach (var series in _series)
@@ -117,14 +119,14 @@ namespace MudBlazor.Charts
                 var line = new SvgPath()
                 {
                     Index = i,
-                    Data = $"M {ToS(HorizontalStartSpace)} {ToS(BoundHeight - AxisChartOptions.LabelExtraHeight - y)} L {ToS(BoundWidth - HorizontalEndSpace)} {ToS(BoundHeight - AxisChartOptions.LabelExtraHeight - y)}"
+                    Data = $"M {ToS(HorizontalStartSpace)} {ToS(_boundHeight - AxisChartOptions.LabelExtraHeight - y)} L {ToS(_boundWidth - HorizontalEndSpace)} {ToS(_boundHeight - AxisChartOptions.LabelExtraHeight - y)}"
                 };
                 _horizontalLines.Add(line);
 
                 var text = new SvgText()
                 {
                     X = HorizontalStartSpace - 10,
-                    Y = BoundHeight - AxisChartOptions.LabelExtraHeight - y + 5,
+                    Y = _boundHeight - AxisChartOptions.LabelExtraHeight - y + 5,
                     Value = ToS(lineValue, MudChartParent?.ChartOptions.YAxisFormat)
                 };
                 _horizontalValues.Add(text);
@@ -139,14 +141,14 @@ namespace MudBlazor.Charts
             _verticalLines.Clear();
             _verticalValues.Clear();
 
-            var startPadding = (_barWidth / 2) + (horizontalSpace * (1 - StackedBarWidthRatio) / 2);
+            var startPadding = (_barWidth / 2) + (horizontalSpace * (1 - AxisChartOptions.StackedBarWidthRatio) / 2);
 
             var lastX = 0d;
             for (int j = 0; j <= numVerticalLines; j++)
             {
                 double x = HorizontalStartSpace + startPadding + (j * horizontalSpace);
 
-                if (StackedBarWidthRatio == 1 && lastX != 0)
+                if (AxisChartOptions.StackedBarWidthRatio == 1 && lastX != 0)
                 {
                     x = lastX + horizontalSpace;
                 }
@@ -154,7 +156,7 @@ namespace MudBlazor.Charts
                 var line = new SvgPath()
                 {
                     Index = j,
-                    Data = $"M {ToS(x)} {ToS(BoundHeight - VerticalStartSpace)} L {ToS(x)} {ToS(VerticalEndSpace)}"
+                    Data = $"M {ToS(x)} {ToS(_boundHeight - VerticalStartSpace)} L {ToS(x)} {ToS(VerticalEndSpace)}"
                 };
                 _verticalLines.Add(line);
 
@@ -162,9 +164,8 @@ namespace MudBlazor.Charts
                 var text = new SvgText()
                 {
                     X = x,
-                    Y = BoundHeight - 4 - AxisChartOptions.LabelExtraHeight,
+                    Y = _boundHeight - (AxisChartOptions.LabelExtraHeight / 2) - 10,
                     Value = label,
-                    Rotation = AxisChartOptions.LabelRotation
                 };
                 _verticalValues.Add(text);
 
@@ -179,7 +180,7 @@ namespace MudBlazor.Charts
         {
             _bars.Clear();
 
-            var startPadding = (_barWidth / 2) + (horizontalSpace * (1 - StackedBarWidthRatio) / 2);
+            var startPadding = (_barWidth / 2) + (horizontalSpace * (1 - AxisChartOptions.StackedBarWidthRatio) / 2);
 
             int numColumns = _series.Any() ? _series.Max(series => series.Data.Length) : 0;
 
@@ -191,12 +192,12 @@ namespace MudBlazor.Charts
                 // Reset lastX for each vertical column
                 double lastX = 0d;
                 double x = HorizontalStartSpace + startPadding + (j * horizontalSpace);
-                if (StackedBarWidthRatio == 1 && lastX != 0)
+                if (AxisChartOptions.StackedBarWidthRatio == 1 && lastX != 0)
                 {
                     x = lastX + horizontalSpace;
                 }
 
-                var yStart = BoundHeight - VerticalStartSpace - AxisChartOptions.LabelExtraHeight;
+                var yStart = _boundHeight - VerticalStartSpace - AxisChartOptions.LabelExtraHeight;
                 for (int i = 0; i < _series.Count; i++)
                 {
                     var series = _series[i];
@@ -215,7 +216,7 @@ namespace MudBlazor.Charts
                     {
                         Index = i,
                         Data = $"M {ToS(x)} {ToS(yStart)} L {ToS(x)} {ToS(yEnd - BarOverlapAmountFix)}",
-                        LabelXValue = XAxisLabels[j],
+                        LabelXValue = XAxisLabels.Length > j ? XAxisLabels[j] : string.Empty,
                         LabelYValue = dataValue.ToString(),
                         LabelX = x,
                         LabelY = yEnd

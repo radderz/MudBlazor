@@ -12,11 +12,6 @@ namespace MudBlazor.UnitTests.Charts
 {
     public class TimeSeriesChartTests : BunitTest
     {
-        const string TimeSeriesMarkupBasic = "<div class=\"mud-chart mud-chart-legend-bottom\" dir=\"ltr\"><svg class=\"mud-chart-line mud-ltr\" width=\"80%\" height=\"80%\" viewBox=\"0 0 800 350\"><g class=\"mud-charts-grid\"><g class=\"mud-charts-gridlines-yaxis\"><path stroke=\"#e0e0e0\" stroke-width=\"0.3\" d=\"M 80 325 L 720 325\"></path></g></g>\n    <g class=\"mud-charts-yaxis\"><text x='70' y='330' font-size='12px' text-anchor='end' dominant-baseline='auto'>1000</text></g>\n    <g class=\"mud-charts-xaxis\"><text x='80' y='348' font-size='12px' text-anchor='middle'>23:00</text><text x='400' y='348' font-size='12px' text-anchor='middle'>00:00</text><text x='720' y='348' font-size='12px' text-anchor='middle'>01:00</text></g>\n    <g class=\"mud-charts-line-series\"><path class=\"mud-chart-line\" blazor:onclick=\"1\" fill=\"none\" stroke=\"#2979FF\" stroke-opacity=\"1\" stroke-width=\"3\" d=\"M 80 325 L 293.3333333333333 325 L 506.66666666666663 325 L 720 325\"></path></g>\n\n    </svg><div class=\"mud-chart-legend\"><div class=\"mud-chart-legend-item\" blazor:onclick=\"2\" blazor:onclick:stopPropagation><span class=\"mud-chart-legend-marker\" style=\"background-color:#2979FF\"></span>\n                    <span class=\"mud-typography mud-typography-body2\">Series 1</span></div></div></div>";
-        const string TimeSeriesMarkupMatchBounds = "<div class=\"mud-chart mud-chart-legend-bottom\" dir=\"ltr\"><svg class=\"mud-chart-line mud-ltr\" width=\"1000px\" height=\"400px\" viewBox=\"0 0 1000 400\"><g class=\"mud-charts-grid\"><g class=\"mud-charts-gridlines-yaxis\"><path stroke=\"#e0e0e0\" stroke-width=\"0.3\" d=\"M 80 375 L 920 375\"></path></g></g>\n    <g class=\"mud-charts-yaxis\"><text x='70' y='380' font-size='12px' text-anchor='end' dominant-baseline='auto'>1000</text></g>\n    <g class=\"mud-charts-xaxis\"><text x='80' y='398' font-size='12px' text-anchor='middle'>23:00</text><text x='500' y='398' font-size='12px' text-anchor='middle'>00:00</text><text x='920' y='398' font-size='12px' text-anchor='middle'>01:00</text></g>\n    <g class=\"mud-charts-line-series\"><path class=\"mud-chart-line\" blazor:onclick=\"1\" fill=\"none\" stroke=\"#2979FF\" stroke-opacity=\"1\" stroke-width=\"3\" d=\"M 80 375 L 360 375 L 640 375 L 920 375\"></path></g>\n\n    </svg><div class=\"mud-chart-legend\"><div class=\"mud-chart-legend-item\" blazor:onclick=\"2\" blazor:onclick:stopPropagation><span class=\"mud-chart-legend-marker\" style=\"background-color:#2979FF\"></span>\n                    <span class=\"mud-typography mud-typography-body2\">Series 1</span></div></div></div>";
-        const string TimeSeriesMarkupTimeLabelSpacingRounding = "<div class=\"mud-chart mud-chart-legend-bottom\" dir=\"ltr\"><svg class=\"mud-chart-line mud-ltr\" width=\"80%\" height=\"80%\" viewBox=\"0 0 800 350\"><g class=\"mud-charts-grid\"><g class=\"mud-charts-gridlines-yaxis\"><path stroke=\"#e0e0e0\" stroke-width=\"0.3\" d=\"M 80 325 L 720 325\"></path></g></g>\n    <g class=\"mud-charts-yaxis\"><text x='70' y='330' font-size='12px' text-anchor='end' dominant-baseline='auto'>1000</text></g>\n    <g class=\"mud-charts-xaxis\"><text x='257.77777777777777' y='348' font-size='12px' text-anchor='middle'>00:00</text><text x='577.7777777777778' y='348' font-size='12px' text-anchor='middle'>01:00</text></g>\n    <g class=\"mud-charts-line-series\"><path class=\"mud-chart-line\" blazor:onclick=\"1\" fill=\"none\" stroke=\"#2979FF\" stroke-opacity=\"1\" stroke-width=\"3\" d=\"M 80 325 L 293.3333333333333 325 L 506.66666666666663 325 L 720 325\"></path></g>\n\n    </svg><div class=\"mud-chart-legend\"><div class=\"mud-chart-legend-item\" blazor:onclick=\"2\" blazor:onclick:stopPropagation><span class=\"mud-chart-legend-marker\" style=\"background-color:#2979FF\"></span>\n                    <span class=\"mud-typography mud-typography-body2\">Series 1</span></div></div></div>";
-        const string TimeSeriesMarkupTimeLabelSpacingRoundingPadSeries = "<div class=\"mud-chart mud-chart-legend-bottom\" dir=\"ltr\"><svg class=\"mud-chart-line mud-ltr\" width=\"80%\" height=\"80%\" viewBox=\"0 0 800 350\"><g class=\"mud-charts-grid\"><g class=\"mud-charts-gridlines-yaxis\"><path stroke=\"#e0e0e0\" stroke-width=\"0.3\" d=\"M 80 325 L 720 325\"></path></g></g>\n    <g class=\"mud-charts-yaxis\"><text x='70' y='330' font-size='12px' text-anchor='end' dominant-baseline='auto'>1000</text></g>\n    <g class=\"mud-charts-xaxis\"><text x='80' y='348' font-size='12px' text-anchor='middle'>23:00</text><text x='293.33333333333337' y='348' font-size='12px' text-anchor='middle'>00:00</text><text x='506.6666666666667' y='348' font-size='12px' text-anchor='middle'>01:00</text><text x='720' y='348' font-size='12px' text-anchor='middle'>02:00</text></g>\n    <g class=\"mud-charts-line-series\"><path class=\"mud-chart-line\" blazor:onclick=\"1\" fill=\"none\" stroke=\"#2979FF\" stroke-opacity=\"1\" stroke-width=\"3\" d=\"M 106.66666666666666 325 L 266.6666666666667 325 L 426.66666666666663 325 L 586.6666666666666 325\"></path></g>\n\n    </svg><div class=\"mud-chart-legend\"><div class=\"mud-chart-legend-item\" blazor:onclick=\"2\" blazor:onclick:stopPropagation><span class=\"mud-chart-legend-marker\" style=\"background-color:#2979FF\"></span>\n                    <span class=\"mud-typography mud-typography-body2\">Series 1</span></div></div></div>";
-
         [SetUp]
         public void Init()
         {
@@ -36,15 +31,17 @@ namespace MudBlazor.UnitTests.Charts
                         Name = "Series 1",
                         Data = new[] {-1, 0, 1, 2}.Select(x => new TimeSeriesChartSeries.TimeValue(time.AddHours(x), 1000)).ToList(),
                         IsVisible = true,
-                        Type = TimeSeriesDisplayType.Line
+                        LineDisplayType = LineDisplayType.Line
                     }
                 ])
                 .Add(p => p.TimeLabelSpacing, TimeSpan.FromHours(1)));
 
-            comp.Markup.Should().BeEquivalentTo(TimeSeriesMarkupBasic);
+            // check the line path
+            comp.Markup.Should().ContainEquivalentOf("<path class=\"mud-chart-line\" blazor:onclick=\"1\" fill=\"none\" stroke=\"#2979FF\" stroke-opacity=\"1\" stroke-width=\"3\" d=\"M 80 325 L 293.3333 325 L 506.6667 325 L 720 325\"></path>");
+
+            // check the axis
+            comp.Markup.Should().ContainEquivalentOf("<g class=\"mud-charts-gridlines-yaxis\"><path stroke=\"#e0e0e0\" stroke-width=\"0.3\" d=\"M 80 325 L 720 325\"></path></g></g>\n    <g class=\"mud-charts-yaxis\"><text x='70' y='330' font-size='12px' text-anchor='end' dominant-baseline='auto'>1000</text></g>\n    <g class=\"mud-charts-xaxis\"><text x='80' y='340' font-size='12px' text-anchor='middle' dominant-baseline='middle' transform='rotate(0 80 340)'>23:00</text><text x='400' y='340' font-size='12px' text-anchor='middle' dominant-baseline='middle' transform='rotate(0 400 340)'>00:00</text><text x='720' y='340' font-size='12px' text-anchor='middle' dominant-baseline='middle' transform='rotate(0 720 340)'>01:00</text></g>");
         }
-
-
 
         [Test]
         public void TimeSeriesChartMatchBounds()
@@ -59,15 +56,16 @@ namespace MudBlazor.UnitTests.Charts
                         Name = "Series 1",
                         Data = new[] {-1, 0, 1, 2}.Select(x => new TimeSeriesChartSeries.TimeValue(time.AddHours(x), 1000)).ToList(),
                         IsVisible = true,
-                        Type = TimeSeriesDisplayType.Line
+                        LineDisplayType = LineDisplayType.Line,
                     }
                 ])
                 .Add(p => p.TimeLabelSpacing, TimeSpan.FromHours(1))
                 .Add(p => p.Width, "1000px")
                 .Add(p => p.Height, "400px")
-                .Add(p => p.MatchBoundsToSize, true));
+                .Add(p => p.AxisChartOptions, new AxisChartOptions { MatchBoundsToSize = true }));
 
-            comp.Markup.Should().BeEquivalentTo(TimeSeriesMarkupMatchBounds);
+            // check the size/bounds
+            comp.Markup.Should().ContainEquivalentOf("<svg class=\"mud-chart-line mud-ltr\" width=\"1000px\" height=\"400px\" viewBox=\"0 0 1000 400\" style=\"overflow: visible;\"");
         }
 
         [Test]
@@ -83,13 +81,14 @@ namespace MudBlazor.UnitTests.Charts
                         Name = "Series 1",
                         Data = new[] {-1, 0, 1, 2}.Select(x => new TimeSeriesChartSeries.TimeValue(time.AddHours(x).AddMinutes(10), 1000)).ToList(),
                         IsVisible = true,
-                        Type = TimeSeriesDisplayType.Line
+                        LineDisplayType = LineDisplayType.Line
                     }
                 ])
                 .Add(p => p.TimeLabelSpacing, TimeSpan.FromHours(1))
                 .Add(p => p.TimeLabelSpacingRounding, true));
 
-            comp.Markup.Should().BeEquivalentTo(TimeSeriesMarkupTimeLabelSpacingRounding);
+            // check the axis
+            comp.Markup.Should().ContainEquivalentOf("<g class=\"mud-charts-gridlines-yaxis\"><path stroke=\"#e0e0e0\" stroke-width=\"0.3\" d=\"M 80 325 L 720 325\"></path></g></g>\n    <g class=\"mud-charts-yaxis\"><text x='70' y='330' font-size='12px' text-anchor='end' dominant-baseline='auto'>1000</text></g>\n    <g class=\"mud-charts-xaxis\"><text x='257.77777777777777' y='340' font-size='12px' text-anchor='middle' dominant-baseline='middle' transform='rotate(0 257.77777777777777 340)'>00:00</text><text x='577.7777777777778' y='340' font-size='12px' text-anchor='middle' dominant-baseline='middle' transform='rotate(0 577.7777777777778 340)'>01:00</text></g>");
         }
 
         [Test]
@@ -105,14 +104,18 @@ namespace MudBlazor.UnitTests.Charts
                         Name = "Series 1",
                         Data = new[] {-1, 0, 1, 2}.Select(x => new TimeSeriesChartSeries.TimeValue(time.AddHours(x).AddMinutes(10), 1000)).ToList(),
                         IsVisible = true,
-                        Type = TimeSeriesDisplayType.Line
+                        LineDisplayType = LineDisplayType.Line
                     }
                 ])
                 .Add(p => p.TimeLabelSpacing, TimeSpan.FromHours(1))
                 .Add(p => p.TimeLabelSpacingRounding, true)
                 .Add(p => p.TimeLabelSpacingRoundingPadSeries, true));
 
-            comp.Markup.Should().BeEquivalentTo(TimeSeriesMarkupTimeLabelSpacingRoundingPadSeries);
+            // check the axis
+            comp.Markup.Should().ContainEquivalentOf("<g class=\"mud-charts-grid\"><g class=\"mud-charts-gridlines-yaxis\"><path stroke=\"#e0e0e0\" stroke-width=\"0.3\" d=\"M 80 325 L 720 325\"></path></g></g>\n    <g class=\"mud-charts-yaxis\"><text x='70' y='330' font-size='12px' text-anchor='end' dominant-baseline='auto'>1000</text></g>\n    <g class=\"mud-charts-xaxis\"><text x='80' y='340' font-size='12px' text-anchor='middle' dominant-baseline='middle' transform='rotate(0 80 340)'>23:00</text><text x='293.33333333333337' y='340' font-size='12px' text-anchor='middle' dominant-baseline='middle' transform='rotate(0 293.33333333333337 340)'>00:00</text><text x='506.6666666666667' y='340' font-size='12px' text-anchor='middle' dominant-baseline='middle' transform='rotate(0 506.6666666666667 340)'>01:00</text><text x='720' y='340' font-size='12px' text-anchor='middle' dominant-baseline='middle' transform='rotate(0 720 340)'>02:00</text></g>");
+
+            // check the line path
+            comp.Markup.Should().ContainEquivalentOf("<path class=\"mud-chart-line\" blazor:onclick=\"1\" fill=\"none\" stroke=\"#2979FF\" stroke-opacity=\"1\" stroke-width=\"3\" d=\"M 106.6667 325 L 266.6667 325 L 426.6667 325 L 586.6667 325\"></path>");
         }
 
         [Test]
