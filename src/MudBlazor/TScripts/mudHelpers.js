@@ -124,11 +124,11 @@ window.mudObserveElementSize = (dotNetReference, element, functionName = 'OnElem
             }
             scheduledCall = setTimeout(() => {
                 lastNotifiedTime = Date.now();
+                scheduledCall = null;
                 try {
                     dotNetReference.invokeMethodAsync(functionName, { width, height });
                 }
                 catch { }
-                scheduledCall = null;
             }, debounceMillis - timeSinceLast);
         }
     };
