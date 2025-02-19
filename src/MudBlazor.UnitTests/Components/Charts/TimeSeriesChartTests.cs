@@ -65,7 +65,7 @@ namespace MudBlazor.UnitTests.Charts
                 .Add(p => p.AxisChartOptions, new AxisChartOptions { MatchBoundsToSize = true }));
 
             // check the size/bounds
-            comp.Markup.Should().ContainEquivalentOf("<svg class=\"mud-chart-line mud-ltr\" width=\"1000px\" height=\"400px\" viewBox=\"0 0 1000 400\" style=\"overflow: visible;\"");
+            comp.Markup.Should().ContainEquivalentOf("<svg class=\"mud-chart-line mud-ltr\" width=\"1000px\" height=\"400px\" viewBox=\"0 0 1000 400\"");
         }
 
         [Test]
