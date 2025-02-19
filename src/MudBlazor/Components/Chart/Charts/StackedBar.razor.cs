@@ -89,8 +89,8 @@ namespace MudBlazor.Charts
                 }
             }
 
-                // Compute the stacked total for each column
-                double[] stackedTotals = new double[numVerticalLines];
+            // Compute the stacked total for each column
+            double[] stackedTotals = new double[numVerticalLines];
             for (int j = 0; j < numVerticalLines; j++)
             {
                 foreach (var series in _series)
