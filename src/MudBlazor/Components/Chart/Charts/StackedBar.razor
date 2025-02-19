@@ -3,22 +3,26 @@
 @using Microsoft.JSInterop
 @inherits MudCategoryAxisChartBase
 
-<svg @ref="_elementReference" @attributes="UserAttributes" class="mud-chart-line mud-ltr" width="@MudChartParent?.Width" height="@MudChartParent?.Height" viewBox="0 0 @_boundWidth @_boundHeight" style="overflow: visible;">
+@{
+    var style = _hoveredBar != null ? "overflow: visible;" : "";
+}
+
+<svg @ref="_elementReference" @attributes="UserAttributes" class="mud-chart-line mud-ltr" width="@MudChartParent?.Width" height="@MudChartParent?.Height" viewBox="0 0 @_boundWidth @_boundHeight" style="@style">
     <g class="mud-charts-grid">
         <g class="mud-charts-gridlines-yaxis">
             @foreach (var horizontalLine in _horizontalLines)
             {
-                            <path stroke="#e0e0e0" stroke-width="0.3" d="@horizontalLine.Data"></path>
+                <path stroke="#e0e0e0" stroke-width="0.3" d="@horizontalLine.Data"></path>
             }
         </g>
         @if (MudChartParent?.ChartOptions.XAxisLines == true)
         {
-                        <g class="mud-charts-gridlines-xaxis-lines">
+            <g class="mud-charts-gridlines-xaxis-lines">
                 @foreach (var verticalLine in _verticalLines)
                 {
-                                            <path stroke="gray" stroke-width="0.3" d="@verticalLine.Data"></path>
+                    <path stroke="gray" stroke-width="0.3" d="@verticalLine.Data"></path>
                 }
-                        </g>
+            </g>
         }
     </g>
     <g class="mud-charts-yaxis">

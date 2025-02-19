@@ -1,4 +1,6 @@
 ﻿#nullable enable
+using MudBlazor;
+
 namespace MudBlazor
 {
     public class AxisChartOptions

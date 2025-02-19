@@ -116,7 +116,9 @@ window.mudObserveElementSize = (dotNetReference, element, functionName = 'OnElem
             try {
                 dotNetReference.invokeMethodAsync(functionName, { width, height });
             }
-            catch { }
+            catch (error) {
+                this.logger("[MudBlazor] Error in mudObserveElementSize:", { error });
+            }
         } else {
             // Otherwise, schedule a notification after the remaining delay.
             if (scheduledCall !== null) {
@@ -128,7 +130,9 @@ window.mudObserveElementSize = (dotNetReference, element, functionName = 'OnElem
                 try {
                     dotNetReference.invokeMethodAsync(functionName, { width, height });
                 }
-                catch { }
+                catch (error) {
+                    this.logger("[MudBlazor] Error in mudObserveElementSize:", { error });
+                }
             }, debounceMillis - timeSinceLast);
         }
     };

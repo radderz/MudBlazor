@@ -3,14 +3,15 @@
 @inherits MudTimeSeriesChartBase
 
 @{
+    var style = _hoveredDataPoint != null ? "overflow: visible;" : "";
+
     var lineStrokeWidth = MudChartParent?.ChartOptions.LineStrokeWidth ?? 3;
     var dataPointRadius = Math.Max(lineStrokeWidth / 2 + 2, 3);
     var dataPointHoverRadius = dataPointRadius + 1;
     var dataPointStroke = 2;
     var dataPointLabelOffset = dataPointHoverRadius + (dataPointStroke / 2);
 }
-
-<svg @ref="_elementReference" @attributes="UserAttributes" class="mud-chart-line mud-ltr" width="@MudChartParent?.Width" height="@MudChartParent?.Height" viewBox="0 0 @_boundWidth @_boundHeight" style="overflow: visible;">
+<svg @ref="_elementReference" @attributes="UserAttributes" class="mud-chart-line mud-ltr" width="@MudChartParent?.Width" height="@MudChartParent?.Height" viewBox="0 0 @_boundWidth @_boundHeight" style="@style">
     <g class="mud-charts-grid">
         <g class="mud-charts-gridlines-yaxis">
             @foreach (var horizontalLine in _horizontalLines)
