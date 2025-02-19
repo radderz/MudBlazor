@@ -24,20 +24,20 @@
     <Exec Command="dotnet run --configuration Release --project &quot;$(SolutionDir)MudBlazor.Docs.Compiler/MudBlazor.Docs.Compiler.csproj&quot;" />
   </Target>
 
-  <!--Add Content that is being generated as part of the build cycle--><!--
-  --><!--We need to do this because the project is not yet aware of files that were generated after the build started--><!--
+  <!--Add Content that is being generated as part of the build cycle-->
+  <!--We need to do this because the project is not yet aware of files that were generated after the build started-->
   <Target Name="IncludeGeneratedFiles" AfterTargets="ResolveProjectReferences" DependsOnTargets="GenerateDocs">
     <ItemGroup>
-      --><!--Include without duplication (always at the end so that _GenerateCompileDependencyCache gives consistent results)--><!--
-      --><!--This avoids full recompile after adding generated files--><!--
-      --><!--See https://github.com/dotnet/msbuild/issues/6401--><!--
+      <!--Include without duplication (always at the end so that _GenerateCompileDependencyCache gives consistent results)-->
+      <!--This avoids full recompile after adding generated files-->
+      <!--See https://github.com/dotnet/msbuild/issues/6401-->
       <Compile Remove="Models\Snippets.generated.cs" />
       <Compile Include="Models\Snippets.generated.cs" />
       <Compile Remove="Models\Generated\ApiDocumentation.generated.cs" />
       <Compile Include="Models\Generated\ApiDocumentation.generated.cs" />
       <EmbeddedResource Include="Pages\**\*.html" />
     </ItemGroup>
-  </Target>-->
+  </Target>
 
   <!--Is this a rebuild - Dont clean generated files as this breaks rebuild behaviour-->
   <Target Name="ShouldCleanGeneratedFiles" BeforeTargets="BeforeRebuild">
