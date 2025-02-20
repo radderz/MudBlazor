@@ -35,11 +35,15 @@ namespace MudBlazor.Charts
             _paths.Clear();
             _legends.Clear();
 
-            var ndata = GetNormalizedData();
+            if (InputData == null)
+                return;
+
+            var normalizedData = GetNormalizedData();
             double cumulativeRadians = Math.PI / 2; // Start at 90 degrees
-            for (var i = 0; i < ndata.Length; i++)
+            for (var i = 0; i < normalizedData.Length; i++)
             {
-                var data = ndata[i];
+                var originalData = InputData[i];
+                var data = normalizedData[i];
                 var startx = Math.Cos(cumulativeRadians);
                 var starty = Math.Sin(cumulativeRadians);
                 cumulativeRadians += 2 * Math.PI * data;
@@ -61,15 +65,15 @@ namespace MudBlazor.Charts
 
                 path.LabelX = midX;
                 path.LabelY = midY;
-                path.LabelXValue = data.ToString("0.0%", CultureInfo.InvariantCulture);
+                path.LabelXValue = originalData.ToString(CultureInfo.InvariantCulture);
                 path.LabelYValue = InputLabels.Length > i ? InputLabels[i] : string.Empty;
 
                 _paths.Add(path);
             }
 
-            for (var i = 0; i < ndata.Length; i++)
+            for (var i = 0; i < normalizedData.Length; i++)
             {
-                var percent = ndata[i] * 100;
+                var percent = normalizedData[i] * 100;
                 var labels = i < InputLabels.Length ? InputLabels[i] : "";
                 var legend = new SvgLegend()
                 {

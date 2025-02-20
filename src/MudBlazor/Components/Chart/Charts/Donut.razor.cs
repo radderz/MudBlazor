@@ -38,13 +38,20 @@ namespace MudBlazor.Charts
 
             _circles.Clear();
             _legends.Clear();
+
+            if (InputData == null)
+                return;
+
             const double counterClockwiseOffset = 25;
             double totalPercent = 0;
             double fullCircumference = 2 * Math.PI * RadiusInner;
 
-            var counter = 0;
-            foreach (var data in GetNormalizedData())
+            var normalizedData = GetNormalizedData();
+            for (var i = 0; i < InputData.Length; i++)
             {
+                var originalData = InputData[i];
+                var data = normalizedData[i];
+
                 var percent = data * 100;
                 var reversePercent = 100 - percent;
                 var offset = (RadiusInner * Math.PI / 2) - totalPercent + counterClockwiseOffset;
@@ -52,7 +59,7 @@ namespace MudBlazor.Charts
 
                 var circle = new SvgCircle()
                 {
-                    Index = counter,
+                    Index = i,
                     CX = 0,
                     CY = 0,
                     Radius = RadiusInner,
@@ -72,21 +79,19 @@ namespace MudBlazor.Charts
 
                 circle.LabelX = midX;
                 circle.LabelY = midY;
-                circle.LabelXValue = data.ToString(CultureInfo.InvariantCulture);
-                circle.LabelYValue = InputLabels.Length > counter ? InputLabels[counter] : string.Empty;
+                circle.LabelXValue = originalData.ToString(CultureInfo.InvariantCulture);
+                circle.LabelYValue = InputLabels.Length > i ? InputLabels[i] : string.Empty;
 
                 _circles.Add(circle);
 
-                var labels = counter < InputLabels.Length ? InputLabels[counter] : "";
+                var labels = i < InputLabels.Length ? InputLabels[i] : "";
                 var legend = new SvgLegend()
                 {
-                    Index = counter,
+                    Index = i,
                     Labels = labels,
                     Data = data.ToString()
                 };
                 _legends.Add(legend);
-
-                counter += 1;
             }
         }
 
