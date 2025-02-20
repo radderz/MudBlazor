@@ -70,12 +70,9 @@ namespace MudBlazor.Charts
                 // Calculate the midpoint angle (in radians)
                 var midAngle = ((totalPercent - (percent / 2)) / 100 * 2 * Math.PI) - (Math.PI / 2);
 
-                // Compute the label radius as the outer radius minus half the stroke width
-                var labelRadius = RadiusInner - (StrokeWidth / 2);
-
-                // Calculate the label's coordinates using the new labelRadius
-                var midX = Math.Cos(midAngle) * labelRadius;
-                var midY = -Math.Sin(midAngle) * labelRadius;
+                // Calculate the label's coordinates
+                var midX = Math.Cos(midAngle) * RadiusInner;
+                var midY = -Math.Sin(midAngle) * RadiusInner;
 
                 circle.LabelX = midX;
                 circle.LabelY = midY;
