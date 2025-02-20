@@ -38,11 +38,7 @@
                 .Replace("{{X_VALUE}}", _hoveredSegment.LabelXValue)
                 .Replace("{{Y_VALUE}}", _hoveredSegment.LabelYValue);
 
-            var tooltipSubtitle = MudChartParent?.ChartOptions.DefaultDataMarkerTooltipTitleFormat
-                .Replace("{{X_VALUE}}", _hoveredSegment.LabelXValue)
-                .Replace("{{Y_VALUE}}", _hoveredSegment.LabelYValue) ?? string.Empty;
-
-            <ChartTooltip Title="@tooltipTitle" Subtitle="@tooltipSubtitle" Color="@color" X="_hoveredSegment.LabelX" Y="_hoveredSegment.LabelY" />
+            <ChartTooltip Title="@tooltipTitle" Color="@color" X="_hoveredSegment.LabelX" Y="_hoveredSegment.LabelY" />
         }
     }
 </svg>
