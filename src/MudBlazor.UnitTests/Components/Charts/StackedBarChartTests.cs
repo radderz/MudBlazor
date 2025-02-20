@@ -138,7 +138,7 @@ namespace MudBlazor.UnitTests.Charts
             var paths1 = comp.FindAll("path");
 
             int count;
-            count = paths1.Count(p => p.OuterHtml.Contains($"fill=\"{"#1E9AB0"}\"") && p.OuterHtml.Contains($"stroke=\"{"#1E9AB0"}\""));
+            count = paths1.Count(p => p.OuterHtml.Contains($"fill=\"none\"") && p.OuterHtml.Contains($"stroke=\"{"#1E9AB0"}\""));
             count.Should().Be(5 * 22);
 
             comp.SetParametersAndRender(parameters => parameters
@@ -148,7 +148,7 @@ namespace MudBlazor.UnitTests.Charts
 
             foreach (var color in _customPalette)
             {
-                count = paths2.Count(p => p.OuterHtml.Contains($"fill=\"{color}\"") && p.OuterHtml.Contains($"stroke=\"{color}\""));
+                count = paths2.Count(p => p.OuterHtml.Contains($"fill=\"none\"") && p.OuterHtml.Contains($"stroke=\"{color}\""));
                 if (color == _customPalette[0])
                 {
                     count.Should().Be(5 * 2, because: "the number of series defined exceeds the number of colors in the chart palette, thus, any new defined series takes the color from the chart palette in the same fashion as the previous series starting from the beginning");

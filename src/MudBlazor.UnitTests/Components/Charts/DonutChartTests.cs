@@ -80,13 +80,13 @@ namespace MudBlazor.UnitTests.Charts
             if (data.Length == 4 && data.Contains(50))
             {
                 comp.Markup.Should()
-                    .Contain("stroke-dasharray=\"50 50\" stroke-dashoffset=\"125\"");
+                    .ContainEquivalentOf("stroke=\"#2979FF\" stroke-width=\"30\" cx=\"0\" cy=\"0\" r=\"120\" stroke-dasharray=\"376.9911 376.9911\" stroke-dashoffset=\"188.4956\"");
             }
 
             if (data.Length == 4 && data.Contains(5))
             {
                 comp.Markup.Should()
-                    .Contain("stroke-dasharray=\"5 95\" stroke-dashoffset=\"30\"");
+                    .ContainEquivalentOf("stroke=\"#FF9100\" stroke-width=\"30\" cx=\"0\" cy=\"0\" r=\"120\" stroke-dasharray=\"37.6991 716.2831\" stroke-dashoffset=\"565.4867\"");
             }
 
             comp.SetParametersAndRender(parameters => parameters
@@ -122,9 +122,9 @@ namespace MudBlazor.UnitTests.Charts
                 var cx = int.Parse(c.GetAttribute("cx") ?? "0");
                 var cy = int.Parse(c.GetAttribute("cy") ?? "0");
 
-                cx.Should().Be(svgViewBox[2] / 2);
+                cx.Should().Be(0);
 
-                cx.Should().Be(svgViewBox[3] / 2);
+                cx.Should().Be(0);
             }
         }
 

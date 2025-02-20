@@ -48,6 +48,7 @@ namespace MudBlazor.Charts
         private Dictionary<int, SvgPath> _chartAreas = [];
         private Dictionary<int, List<SvgCircle>> _chartDataPoints = [];
         private SvgCircle? _hoveredDataPoint;
+        private SvgPath? _hoverDataPointChartLine;
 
         private DateTime _minDateTime;
         private DateTime _maxDateTime;
@@ -451,11 +452,14 @@ namespace MudBlazor.Charts
         private void OnDataPointMouseOver(MouseEventArgs e, SvgCircle dataPoint)
         {
             _hoveredDataPoint = dataPoint;
+            var seriesIndex = _chartDataPoints.First(x => x.Value.Contains(_hoveredDataPoint)).Key;
+            _hoverDataPointChartLine = _chartLines[seriesIndex];
         }
 
         private void OnDataPointMouseOut(MouseEventArgs e)
         {
             _hoveredDataPoint = null;
+            _hoverDataPointChartLine = null;
         }
     }
 }

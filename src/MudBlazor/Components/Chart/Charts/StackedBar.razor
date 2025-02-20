@@ -8,6 +8,7 @@
 }
 
 <svg @ref="_elementReference" @attributes="UserAttributes" class="mud-chart-line mud-ltr" width="@MudChartParent?.Width" height="@MudChartParent?.Height" viewBox="0 0 @_boundWidth @_boundHeight" style="@style">
+    <Filters />
     <g class="mud-charts-grid">
         <g class="mud-charts-gridlines-yaxis">
             @foreach (var horizontalLine in _horizontalLines)
@@ -46,16 +47,15 @@
         {
             var color = MudChartParent?.ChartOptions.ChartPalette.GetValue(bar.Index % MudChartParent.ChartOptions.ChartPalette.Length);
             var isHovered = _hoveredBar == bar;
-            var dashArray = isHovered ? "5,5" : "0";
-
+            
             <path class="mud-chart-bar"
-                    @onclick="() => SelectedIndex = bar.Index"
-                    fill="@color"
-                    stroke="@color"
-                    stroke-width="@_barWidthStroke"
-                    d="@bar.Data"
-                    @onmouseover="(e) => OnBarMouseOver(e, bar)"
-                    @onmouseout="OnBarMouseOut">
+                  @onclick="() => SelectedIndex = bar.Index"
+                  stroke="@color"
+                  stroke-width="@_barWidthStroke"
+                  fill="none"
+                  d="@bar.Data"
+                  @onmouseover="(e) => OnBarMouseOver(e, bar)"
+                  @onmouseout="OnBarMouseOut">
             </path>
         }
     </g>

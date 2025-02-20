@@ -9,7 +9,7 @@
     var subtitleHeight = hasSubtitle ? 16 : 0;
     var opacity = _boxWidth > 0 ? 1 : 0;
 }
-<g class="svg-tooltip" opacity="@opacity">
+<g class="svg-tooltip" opacity="@opacity" style="pointer-events: none;">
     <!-- The triangle pointing down (8px wide at the top) -->
     <polygon points="@($"{X - 8},{Y - 8} {X + 8},{Y - 8} {X},{Y - 1.5}")"
             fill="@Color"

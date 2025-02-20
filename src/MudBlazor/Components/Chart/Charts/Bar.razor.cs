@@ -1,4 +1,5 @@
 ﻿using Microsoft.AspNetCore.Components;
+using Microsoft.AspNetCore.Components.Web;
 
 #nullable enable
 namespace MudBlazor.Charts
@@ -23,6 +24,7 @@ namespace MudBlazor.Charts
         private List<ChartSeries> _series = [];
 
         private List<SvgPath> _bars = [];
+        private SvgPath? _hoveredBar;
 
         /// <inheritdoc />
         protected override void OnParametersSet()
@@ -155,7 +157,11 @@ namespace MudBlazor.Charts
                     var bar = new SvgPath()
                     {
                         Index = i,
-                        Data = $"M {ToS(gridValueX)} {ToS(gridValueY)} L {ToS(gridValueX)} {ToS(gridValue)}"
+                        Data = $"M {ToS(gridValueX)} {ToS(gridValueY)} L {ToS(gridValueX)} {ToS(gridValue)}",
+                        LabelXValue = XAxisLabels.Length > j ? XAxisLabels[j] : string.Empty,
+                        LabelYValue = dataValue.ToString(),
+                        LabelX = gridValueX,
+                        LabelY = gridValue
                     };
                     _bars.Add(bar);
                 }
@@ -167,6 +173,16 @@ namespace MudBlazor.Charts
                 };
                 _legends.Add(legend);
             }
+        }
+
+        private void OnBarMouseOver(MouseEventArgs e, SvgPath bar)
+        {
+            _hoveredBar = bar;
+        }
+
+        private void OnBarMouseOut(MouseEventArgs e)
+        {
+            _hoveredBar = null;
         }
     }
 }

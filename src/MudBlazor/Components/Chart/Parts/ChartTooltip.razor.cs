@@ -5,11 +5,11 @@ namespace MudBlazor.Charts
 {
     public partial class ChartTooltip
     {
-        [Parameter] public string Title { get; set; } = string.Empty;
+        [Parameter, EditorRequired] public string Title { get; set; } = string.Empty;
         [Parameter] public string Subtitle { get; set; } = string.Empty;
-        [Parameter] public double X { get; set; }
-        [Parameter] public double Y { get; set; }
-        [Parameter] public string Color { get; set; } = string.Empty;
+        [Parameter, EditorRequired] public double X { get; set; }
+        [Parameter, EditorRequired] public double Y { get; set; }
+        [Parameter] public string Color { get; set; } = "darkgrey";
 
         private ElementReference? _hoverTextTitle = null;
         private double _boxWidth = -1;

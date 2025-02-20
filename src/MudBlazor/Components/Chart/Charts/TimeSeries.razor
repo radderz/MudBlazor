@@ -12,6 +12,7 @@
     var dataPointLabelOffset = dataPointHoverRadius + (dataPointStroke / 2);
 }
 <svg @ref="_elementReference" @attributes="UserAttributes" class="mud-chart-line mud-ltr" width="@MudChartParent?.Width" height="@MudChartParent?.Height" viewBox="0 0 @_boundWidth @_boundHeight" style="@style">
+    <Filters />
     <g class="mud-charts-grid">
         <g class="mud-charts-gridlines-yaxis">
             @foreach (var horizontalLine in _horizontalLines)
@@ -59,13 +60,16 @@
             var series = _series[chartLine.Index];
             var color = MudChartParent?.ChartOptions.ChartPalette.GetValue(chartLine.Index % MudChartParent.ChartOptions.ChartPalette.Length);
             var showDataMarkers = _series[chartLine.Index].ShowDataMarkers;
+            var isHovered = _hoverDataPointChartLine == chartLine;
 
-            <path class="mud-chart-line" @onclick="() => SelectedIndex = chartLine.Index" fill="none" stroke="@color" stroke-opacity="@series.StrokeOpacity" stroke-width="@MudChartParent?.ChartOptions.LineStrokeWidth" d="@chartLine.Data"></path>
+            var lineClass = isHovered ? "mud-chart-serie mud-chart-line mud-chart-serie-hovered" : "mud-chart-serie mud-chart-line";
+
+            <path class="@lineClass" @onclick="() => SelectedIndex = chartLine.Index" fill="none" stroke="@color" stroke-opacity="@series.StrokeOpacity" stroke-width="@MudChartParent?.ChartOptions.LineStrokeWidth" d="@chartLine.Data"></path>
 
             if (series.LineDisplayType == LineDisplayType.Area)
             {
                 var chartArea = _chartAreas[chartLine.Index];
-                <path class="mud-chart-line" @onclick="() => SelectedIndex = chartLine.Index" fill="@color" fill-opacity="@series.FillOpacity" d="@chartArea.Data"></path>
+                <path class="@lineClass" @onclick="() => SelectedIndex = chartLine.Index" fill="@color" fill-opacity="@series.FillOpacity" d="@chartArea.Data"></path>
             }
 
             @foreach (var item in _chartDataPoints[chartLine.Index].OrderBy(x => x.Index))
@@ -95,7 +99,7 @@
     @MudChartParent?.CustomGraphics
 
     @* Render the tooltip as an SVG group when a bar is hovered *@
-    @if (_hoveredDataPoint is not null)
+    @if (_hoveredDataPoint is not null && _hoverDataPointChartLine is not null)
     {
         var seriesIndex = _chartDataPoints.First(x => x.Value.Contains(_hoveredDataPoint)).Key;
 
