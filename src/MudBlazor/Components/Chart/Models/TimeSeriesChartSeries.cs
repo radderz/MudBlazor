@@ -13,6 +13,8 @@ namespace MudBlazor
 
         public int Index { get; set; }
 
+        [Obsolete("Use LineDisplayType instead. This will be removed in a future major version.", false)]
+        public TimeSeriesDisplayType Type { get => (TimeSeriesDisplayType)LineDisplayType; set => LineDisplayType = (LineDisplayType)value; }
         public LineDisplayType LineDisplayType { get; set; } = LineDisplayType.Line;
 
         public double FillOpacity { get; set; } = 0.4;

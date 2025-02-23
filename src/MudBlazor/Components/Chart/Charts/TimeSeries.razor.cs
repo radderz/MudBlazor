@@ -19,6 +19,7 @@ namespace MudBlazor.Charts
     /// <seealso cref="StackedBar"/>
     partial class TimeSeries : MudTimeSeriesChartBase
     {
+        private const double Epsilon = 1e-6;
         private const double BoundWidthDefault = 800;
         private const double BoundHeightDefault = 350;
         private const double HorizontalStartSpace = 80.0; // needs space to have the full label visible and be even to the end space
@@ -129,11 +130,14 @@ namespace MudBlazor.Charts
             _elementSize = elementSize;
 
 
-            if (AxisChartOptions.MatchBoundsToSize == false)
+            if (!AxisChartOptions.MatchBoundsToSize)
                 return;
 
-            if (_boundWidth == _elementSize.Width && _boundHeight == _elementSize.Height)
+            if (Math.Abs(_boundWidth - _elementSize.Width) < Epsilon &&
+                Math.Abs(_boundHeight - _elementSize.Height) < Epsilon)
+            {
                 return;
+            }
 
             RebuildChart();
 
@@ -150,7 +154,7 @@ namespace MudBlazor.Charts
                 _maxDateTime = _series.SelectMany(series => series.Data).Max(x => x.DateTime);
                 var labelSpacing = TimeLabelSpacing;
 
-                if (TimeLabelSpacingRounding == false) return;
+                if (!TimeLabelSpacingRounding) return;
 
                 if (_minDateTime.Ticks % labelSpacing.Ticks != 0)
                 {
@@ -315,8 +319,6 @@ namespace MudBlazor.Charts
                 if (data.Count <= 0)
                     continue;
 
-                var seriesMinDateTime = data.Min(x => x.DateTime);
-
                 (double x, double y) GetXYForDataPoint(int index)
                 {
                     var dateTime = data[index].DateTime;
@@ -449,14 +451,14 @@ namespace MudBlazor.Charts
             RebuildChart();
         }
 
-        private void OnDataPointMouseOver(MouseEventArgs e, SvgCircle dataPoint)
+        private void OnDataPointMouseOver(MouseEventArgs _, SvgCircle dataPoint)
         {
             _hoveredDataPoint = dataPoint;
             var seriesIndex = _chartDataPoints.First(x => x.Value.Contains(_hoveredDataPoint)).Key;
             _hoverDataPointChartLine = _chartLines[seriesIndex];
         }
 
-        private void OnDataPointMouseOut(MouseEventArgs e)
+        private void OnDataPointMouseOut(MouseEventArgs _)
         {
             _hoveredDataPoint = null;
             _hoverDataPointChartLine = null;

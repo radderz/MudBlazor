@@ -175,12 +175,12 @@ namespace MudBlazor.Charts
             }
         }
 
-        private void OnBarMouseOver(MouseEventArgs e, SvgPath bar)
+        private void OnBarMouseOver(MouseEventArgs _, SvgPath bar)
         {
             _hoveredBar = bar;
         }
 
-        private void OnBarMouseOut(MouseEventArgs e)
+        private void OnBarMouseOut(MouseEventArgs _)
         {
             _hoveredBar = null;
         }

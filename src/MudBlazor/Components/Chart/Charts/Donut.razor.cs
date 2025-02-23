@@ -17,7 +17,7 @@ namespace MudBlazor.Charts
     {
         private const int Radius = 140;
         private const int RadiusInner = 120;
-        private double StrokeWidth => RadiusInner / 4;
+        private static double StrokeWidth => RadiusInner / 4;
         /// <summary>
         /// The chart, if any, containing this component.
         /// </summary>
@@ -42,7 +42,6 @@ namespace MudBlazor.Charts
             if (InputData == null)
                 return;
 
-            const double counterClockwiseOffset = 25;
             double totalPercent = 0;
             double fullCircumference = 2 * Math.PI * RadiusInner;
 
@@ -54,7 +53,6 @@ namespace MudBlazor.Charts
 
                 var percent = data * 100;
                 var reversePercent = 100 - percent;
-                var offset = (RadiusInner * Math.PI / 2) - totalPercent + counterClockwiseOffset;
                 totalPercent += percent;
 
                 var circle = new SvgCircle()
@@ -92,12 +90,12 @@ namespace MudBlazor.Charts
             }
         }
 
-        private void OnSegmentMouseOver(MouseEventArgs e, SvgCircle segment)
+        private void OnSegmentMouseOver(MouseEventArgs _, SvgCircle segment)
         {
             _hoveredSegment = segment;
         }
 
-        private void OnSegmentMouseOut(MouseEventArgs e)
+        private void OnSegmentMouseOut(MouseEventArgs _)
         {
             _hoveredSegment = null;
         }

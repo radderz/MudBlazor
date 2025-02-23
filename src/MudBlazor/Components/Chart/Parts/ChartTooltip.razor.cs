@@ -14,7 +14,7 @@ namespace MudBlazor.Charts
         private ElementReference? _hoverTextTitle = null;
         private double _boxWidth = -1;
 
-        private class BBox
+        private sealed class BBox
         {
             public double X { get; set; }
             public double Y { get; set; }

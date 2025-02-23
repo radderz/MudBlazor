@@ -85,53 +85,12 @@ namespace MudBlazor.Charts
             }
         }
 
-        //protected override void OnParametersSet()
-        //{
-        //    base.OnParametersSet();
-
-        //    _paths.Clear();
-        //    _legends.Clear();
-
-        //    var ndata = GetNormalizedData();
-        //    double cumulativeRadians = 0;
-        //    for (var i = 0; i < ndata.Length; i++)
-        //    {
-        //        var data = ndata[i];
-        //        var startx = Math.Cos(cumulativeRadians);
-        //        var starty = Math.Sin(cumulativeRadians);
-        //        cumulativeRadians += 2 * Math.PI * data;
-        //        var endx = Math.Cos(cumulativeRadians);
-        //        var endy = Math.Sin(cumulativeRadians);
-        //        var largeArcFlag = data > 0.5 ? 1 : 0;
-        //        var path = new SvgPath()
-        //        {
-        //            Index = i,
-        //            Data = $"M {ToS(startx * 200)} {ToS(starty * 200)} A 200 200 0 {ToS(largeArcFlag)} 1 {ToS(endx * 200)} {ToS(endy * 200)} L 0 0"
-        //        };
-
-        //        _paths.Add(path);
-        //    }
-
-        //    for (var i = 0; i < ndata.Length; i++)
-        //    {
-        //        var percent = ndata[i] * 100;
-        //        var labels = i < InputLabels.Length ? InputLabels[i] : "";
-        //        var legend = new SvgLegend()
-        //        {
-        //            Index = i,
-        //            Labels = labels,
-        //            Data = ToS(Math.Round(percent, 1))
-        //        };
-        //        _legends.Add(legend);
-        //    }
-        //}
-
-        private void OnSegmentMouseOver(MouseEventArgs e, SvgPath segment)
+        private void OnSegmentMouseOver(MouseEventArgs _, SvgPath segment)
         {
             _hoveredSegment = segment;
         }
 
-        private void OnSegmentMouseOut(MouseEventArgs e)
+        private void OnSegmentMouseOut(MouseEventArgs _)
         {
             _hoveredSegment = null;
         }

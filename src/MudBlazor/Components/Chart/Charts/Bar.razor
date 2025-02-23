@@ -45,7 +45,6 @@
         @foreach (var bar in _bars)
         {
             var color = MudChartParent?.ChartOptions.ChartPalette.GetValue(bar.Index % MudChartParent.ChartOptions.ChartPalette.Length);
-            var isHovered = _hoveredBar == bar;
 
             <path class="mud-chart-bar"
                   @onclick="() => SelectedIndex = bar.Index" 
@@ -67,7 +66,7 @@
         var color = MudChartParent?.ChartOptions.ChartPalette.GetValue(_hoveredBar.Index % MudChartParent.ChartOptions.ChartPalette.Length)?.ToString() ?? string.Empty;
         var series = _series[_hoveredBar.Index];
 
-        if (string.IsNullOrWhiteSpace(series.DataMarkerTooltipTitleFormat) == false)
+        if (!string.IsNullOrWhiteSpace(series.DataMarkerTooltipTitleFormat))
         {
             var tooltipTitle = series.DataMarkerTooltipTitleFormat
                 .Replace("{{SERIES_NAME}}", series.Name)

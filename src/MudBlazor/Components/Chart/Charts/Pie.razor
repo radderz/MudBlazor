@@ -27,9 +27,9 @@
     {
         var color = MudChartParent?.ChartOptions.ChartPalette.GetValue(_hoveredSegment.Index % MudChartParent.ChartOptions.ChartPalette.Length)?.ToString() ?? string.Empty;
 
-        if (string.IsNullOrWhiteSpace(MudChartParent?.ChartOptions.DefaultDataMarkerTooltipTitleFormat) == false)
+        if (!string.IsNullOrWhiteSpace(MudChartParent?.ChartOptions.DefaultDataMarkerTooltipTitleFormat))
         {
-            var tooltipTitle = MudChartParent?.ChartOptions.DefaultDataMarkerTooltipTitleFormat
+            var tooltipTitle = MudChartParent.ChartOptions.DefaultDataMarkerTooltipTitleFormat
             .Replace("{{SERIES_NAME}}", _hoveredSegment.LabelYValue)
             .Replace("{{X_VALUE}}", _hoveredSegment.LabelXValue)
             .Replace("{{Y_VALUE}}", _hoveredSegment.LabelYValue);

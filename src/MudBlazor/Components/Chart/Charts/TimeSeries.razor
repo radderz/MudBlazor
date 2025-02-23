@@ -106,7 +106,7 @@
         var color = MudChartParent?.ChartOptions.ChartPalette.GetValue(seriesIndex % MudChartParent.ChartOptions.ChartPalette.Length)?.ToString() ?? string.Empty;
         var series = _series[seriesIndex];
 
-        if (string.IsNullOrWhiteSpace(series.DataMarkerTooltipTitleFormat) == false)
+        if (!string.IsNullOrWhiteSpace(series.DataMarkerTooltipTitleFormat))
         {
             var tooltipTitle = series.DataMarkerTooltipTitleFormat
             .Replace("{{SERIES_NAME}}", series.Name)

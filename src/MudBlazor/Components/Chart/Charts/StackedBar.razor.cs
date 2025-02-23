@@ -1,5 +1,6 @@
 ﻿using Microsoft.AspNetCore.Components;
 using Microsoft.AspNetCore.Components.Web;
+using MudBlazor.Extensions;
 
 #nullable enable
 namespace MudBlazor.Charts
@@ -44,7 +45,7 @@ namespace MudBlazor.Charts
                 _series = MudChartParent.ChartSeries;
 
             SetBounds();
-            ComputeStackedUnitsAndNumberOfLines(out var gridXUnits, out var gridYUnits, out var numHorizontalLines, out var numVerticalLines);
+            ComputeStackedUnitsAndNumberOfLines(out var _, out var gridYUnits, out var numHorizontalLines, out var numVerticalLines);
 
             // Calculate spacing – note the horizontal space is computed so that the vertical grid lines line up
             double horizontalSpace = Math.Round((_boundWidth - HorizontalStartSpace - HorizontalEndSpace) / (numVerticalLines > 1 ? (numVerticalLines) : 1), 1);
@@ -74,7 +75,13 @@ namespace MudBlazor.Charts
             numVerticalLines = _series.Any() ? _series.Max(series => series.Data.Length) : 0;
 
             _barWidthStroke = _barWidth = (_boundWidth - HorizontalStartSpace - HorizontalEndSpace) / (numVerticalLines > 1 ? (numVerticalLines) : 1) * AxisChartOptions.StackedBarWidthRatio;
-            if (AxisChartOptions.StackedBarWidthRatio == 1)
+
+            if (AxisChartOptions.StackedBarWidthRatio > 1)
+                throw new ArgumentOutOfRangeException(nameof(AxisChartOptions.StackedBarWidthRatio), "StackedBarWidthRatio must be less than or equal to 1.");
+            else if (AxisChartOptions.StackedBarWidthRatio < 0.1)
+                throw new ArgumentOutOfRangeException(nameof(AxisChartOptions.StackedBarWidthRatio), "StackedBarWidthRatio must be greater than or equal to 0.1.");
+
+            if (AxisChartOptions.StackedBarWidthRatio >= 0.9999)
             {
                 // Optimisation to remove gaps between bars due to floating point rounding causing gaps to be visible between bars.
                 // This givs a very slight overlap which isn't visible without purposeful inspection and zooming.
@@ -143,15 +150,9 @@ namespace MudBlazor.Charts
 
             var startPadding = (_barWidth / 2) + (horizontalSpace * (1 - AxisChartOptions.StackedBarWidthRatio) / 2);
 
-            var lastX = 0d;
             for (int j = 0; j <= numVerticalLines; j++)
             {
                 double x = HorizontalStartSpace + startPadding + (j * horizontalSpace);
-
-                if (AxisChartOptions.StackedBarWidthRatio == 1 && lastX != 0)
-                {
-                    x = lastX + horizontalSpace;
-                }
 
                 var line = new SvgPath()
                 {
@@ -168,8 +169,6 @@ namespace MudBlazor.Charts
                     Value = label,
                 };
                 _verticalValues.Add(text);
-
-                lastX = x;
             }
         }
 
@@ -182,20 +181,12 @@ namespace MudBlazor.Charts
 
             var startPadding = (_barWidth / 2) + (horizontalSpace * (1 - AxisChartOptions.StackedBarWidthRatio) / 2);
 
-            int numColumns = _series.Any() ? _series.Max(series => series.Data.Length) : 0;
-
             // For each series, stack the bars in each column
             var maxSeriesLength = _series.Any() ? _series.Max(series => series.Data.Length) : 0;
 
             for (int j = 0; j < maxSeriesLength; j++)
             {
-                // Reset lastX for each vertical column
-                double lastX = 0d;
                 double x = HorizontalStartSpace + startPadding + (j * horizontalSpace);
-                if (AxisChartOptions.StackedBarWidthRatio == 1 && lastX != 0)
-                {
-                    x = lastX + horizontalSpace;
-                }
 
                 var yStart = _boundHeight - VerticalStartSpace - AxisChartOptions.LabelExtraHeight;
                 for (int i = 0; i < _series.Count; i++)
@@ -226,8 +217,6 @@ namespace MudBlazor.Charts
                     // Update the offset for the next series at the same vertical
                     yStart = yEnd;
                 }
-
-                lastX = x;
             }
         }
 
@@ -248,12 +237,12 @@ namespace MudBlazor.Charts
             }
         }
 
-        private void OnBarMouseOver(MouseEventArgs e, SvgPath bar)
+        private void OnBarMouseOver(MouseEventArgs _, SvgPath bar)
         {
             _hoveredBar = bar;
         }
 
-        private void OnBarMouseOut(MouseEventArgs e)
+        private void OnBarMouseOut(MouseEventArgs _)
         {
             _hoveredBar = null;
         }

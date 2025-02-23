@@ -16,6 +16,7 @@ namespace MudBlazor
         [CascadingParameter]
         public MudChart? MudChartParent { get; set; }
 
+        private const double Epsilon = 1e-6;
         protected const double HorizontalStartSpace = 30.0;
         protected const double HorizontalEndSpace = 30.0;
         protected const double VerticalStartSpace = 25.0;
@@ -27,10 +28,10 @@ namespace MudBlazor
         protected double _boundHeight = 350.0;
         private ElementSize _elementSize = new() { Width = BoundWidthDefault, Height = BoundHeightDefault };
 
-        private DotNetObjectReference<MudCategoryAxisChartBase>? _dotNetObjectReference;
+        private readonly DotNetObjectReference<MudCategoryAxisChartBase> _dotNetObjectReference;
         protected ElementReference _elementReference = new();
 
-        public MudCategoryAxisChartBase()
+        protected MudCategoryAxisChartBase()
         {
             _dotNetObjectReference = DotNetObjectReference.Create(this);
         }
@@ -69,8 +70,11 @@ namespace MudBlazor
             if (AxisChartOptions.MatchBoundsToSize == false)
                 return;
 
-            if (_boundWidth == _elementSize.Width && _boundHeight == _elementSize.Height)
+            if (Math.Abs(_boundWidth - _elementSize.Width) < Epsilon &&
+                Math.Abs(_boundHeight - _elementSize.Height) < Epsilon)
+            {
                 return;
+            }
 
             RebuildChart();
 
@@ -81,7 +85,13 @@ namespace MudBlazor
 
         public void Dispose()
         {
-            _dotNetObjectReference?.Dispose();
+            Dispose(true);
+            GC.SuppressFinalize(this);
+        }
+
+        protected virtual void Dispose(bool disposing)
+        {
+            _dotNetObjectReference.Dispose();
         }
     }
 }

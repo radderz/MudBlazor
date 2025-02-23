@@ -176,7 +176,6 @@ namespace MudBlazor.Charts
                 double firstPointX = 0;
                 double firstPointY = 0;
                 double lastPointX = 0;
-                double lastPointY = 0;
 
                 var interpolationEnabled = MudChartParent != null && MudChartParent.ChartOptions.InterpolationOption != InterpolationOption.Straight;
                 if (interpolationEnabled)
@@ -228,7 +227,6 @@ namespace MudBlazor.Charts
                         if (j == interpolator.InterpolatedYs.Length - 1)
                         {
                             lastPointX = x;
-                            lastPointY = y;
                         }
 
                         chartLine.Append(ToS(x));
@@ -254,7 +252,6 @@ namespace MudBlazor.Charts
                         if (j == data.Length - 1)
                         {
                             lastPointX = x;
-                            lastPointY = y;
                         }
 
                         chartLine.Append(ToS(x));
@@ -337,14 +334,14 @@ namespace MudBlazor.Charts
             RebuildChart();
         }
 
-        private void OnDataPointMouseOver(MouseEventArgs e, SvgCircle dataPoint)
+        private void OnDataPointMouseOver(MouseEventArgs _, SvgCircle dataPoint)
         {
             _hoveredDataPoint = dataPoint;
             var seriesIndex = _chartDataPoints.First(x => x.Value.Contains(_hoveredDataPoint)).Key;
             _hoverDataPointChartLine = _chartLines[seriesIndex];
         }
 
-        private void OnDataPointMouseOut(MouseEventArgs e)
+        private void OnDataPointMouseOut(MouseEventArgs _)
         {
             _hoveredDataPoint = null;
             _hoverDataPointChartLine = null;
