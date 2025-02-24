@@ -77,9 +77,9 @@ namespace MudBlazor.Charts
             _barWidthStroke = _barWidth = (_boundWidth - HorizontalStartSpace - HorizontalEndSpace) / (numVerticalLines > 1 ? (numVerticalLines) : 1) * AxisChartOptions.StackedBarWidthRatio;
 
             if (AxisChartOptions.StackedBarWidthRatio > 1)
-                throw new ArgumentOutOfRangeException(nameof(AxisChartOptions.StackedBarWidthRatio), "StackedBarWidthRatio must be less than or equal to 1.");
+                throw new InvalidOperationException("StackedBarWidthRatio must be less than or equal to 1.");
             else if (AxisChartOptions.StackedBarWidthRatio < 0.1)
-                throw new ArgumentOutOfRangeException(nameof(AxisChartOptions.StackedBarWidthRatio), "StackedBarWidthRatio must be greater than or equal to 0.1.");
+                throw new InvalidOperationException("StackedBarWidthRatio must be greater than or equal to 0.1.");
 
             if (AxisChartOptions.StackedBarWidthRatio >= 0.9999)
             {
