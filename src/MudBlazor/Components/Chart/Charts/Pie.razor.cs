@@ -27,6 +27,7 @@ namespace MudBlazor.Charts
 
         // 1 = full circle, 0.2 = donut with 20% radius thickness 80% hole.
         [Parameter]
+        [Category(CategoryTypes.Chart.Appearance)]
         public double CircleDonutRatio { get; set; } = 1;
 
         private List<SvgPath> _paths = [];
