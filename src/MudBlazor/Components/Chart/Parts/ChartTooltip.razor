@@ -5,7 +5,7 @@
 @inject IJSRuntime JSRuntime
 
 @{
-    var hasSubtitle = string.IsNullOrWhiteSpace(Subtitle) == false;
+    var hasSubtitle = !string.IsNullOrWhiteSpace(Subtitle);
     var subtitleHeight = hasSubtitle ? 16 : 0;
     var opacity = _boxWidth > 0 ? 1 : 0;
 }

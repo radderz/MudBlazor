@@ -103,7 +103,7 @@ namespace MudBlazor.Charts
             _boundWidth = BoundWidthDefault;
             _boundHeight = BoundHeightDefault;
 
-            if (MudChartParent != null && (MudChartParent.AxisChartOptions.MatchBoundsToSize == true || MudChartParent.MatchBoundsToSize == true)) // backwards compatibilitly to the mudchartparent approach
+            if (MudChartParent != null && (MudChartParent.AxisChartOptions.MatchBoundsToSize || MudChartParent.MatchBoundsToSize)) // backwards compatibilitly to the mudchartparent approach
             {
                 if (_elementSize != null)
                 {
