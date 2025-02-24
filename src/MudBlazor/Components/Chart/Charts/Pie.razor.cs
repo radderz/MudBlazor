@@ -26,8 +26,8 @@ namespace MudBlazor.Charts
         public MudChart? MudChartParent { get; set; }
 
         // 1 = full circle, 0.2 = donut with 20% radius thickness 80% hole.
-        [Parameter] 
-        public double CircleDonutRatio { get; set; } = 1; 
+        [Parameter]
+        public double CircleDonutRatio { get; set; } = 1;
 
         private List<SvgPath> _paths = [];
         private List<SvgLegend> _legends = [];
@@ -44,10 +44,10 @@ namespace MudBlazor.Charts
                 return;
 
             var normalizedData = GetNormalizedData();
-            double cumulativeRadians = - Math.PI / 2; // Start at -90 degrees
+            double cumulativeRadians = -Math.PI / 2; // Start at -90 degrees
 
             double donutRadiusRatio = CircleDonutRatio.EnsureRange(0.1, 1);
-            
+
             for (var i = 0; i < normalizedData.Length; i++)
             {
                 var originalData = InputData[i];
