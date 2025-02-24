@@ -44,6 +44,9 @@ namespace MudBlazor.Charts
             if (MudChartParent != null)
                 _series = MudChartParent.ChartSeries;
 
+            // ensure the stacked bar width ratio is within the valid range
+            AxisChartOptions.StackedBarWidthRatio = AxisChartOptions.StackedBarWidthRatio.EnsureRange(0.1, 1);
+
             SetBounds();
             ComputeStackedUnitsAndNumberOfLines(out var _, out var gridYUnits, out var numHorizontalLines, out var numVerticalLines);
 
@@ -75,11 +78,6 @@ namespace MudBlazor.Charts
             numVerticalLines = _series.Any() ? _series.Max(series => series.Data.Length) : 0;
 
             _barWidthStroke = _barWidth = (_boundWidth - HorizontalStartSpace - HorizontalEndSpace) / (numVerticalLines > 1 ? (numVerticalLines) : 1) * AxisChartOptions.StackedBarWidthRatio;
-
-            if (AxisChartOptions.StackedBarWidthRatio > 1)
-                throw new InvalidOperationException("StackedBarWidthRatio must be less than or equal to 1.");
-            else if (AxisChartOptions.StackedBarWidthRatio < 0.1)
-                throw new InvalidOperationException("StackedBarWidthRatio must be greater than or equal to 0.1.");
 
             if (AxisChartOptions.StackedBarWidthRatio >= 0.9999)
             {
