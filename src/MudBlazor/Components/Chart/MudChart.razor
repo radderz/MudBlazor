@@ -9,7 +9,7 @@
         <div @attributes="UserAttributes" class="@Classname" style="@Style; width: @Width; height: @Height;" dir="ltr">
             @if (ChartType == ChartType.Donut)
             {
-                <Pie InputData="@InputData" @bind-SelectedIndex="@SelectedIndex" InputLabels="@InputLabels" CircleDonutRatio="0.25"></Pie>
+                <Donut InputData="@InputData" @bind-SelectedIndex="@SelectedIndex" InputLabels="@InputLabels"></Donut>
             }
             @if (ChartType == ChartType.Pie)
             {
