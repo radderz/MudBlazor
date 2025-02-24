@@ -3,9 +3,10 @@
 
 @{
     var style = _hoveredSegment != null ? "overflow: visible;" : "";
+    var chartClass = CircleDonutRatio < 1 ? "mud-chart-donut" : "mud-chart-pie";
 }
 
-<svg @attributes="UserAttributes" class="mud-chart-pie" width="@MudChartParent?.Width" height="@MudChartParent?.Height" viewBox="-@Radius -@Radius @(Radius * 2) @(Radius * 2)" style="@style">
+<svg @attributes="UserAttributes" class="@chartClass" width="@MudChartParent?.Width" height="@MudChartParent?.Height" viewBox="-@Radius -@Radius @(Radius * 2) @(Radius * 2)" style="@style">
     <Filters />
     <g>
         @foreach (var item in _paths)

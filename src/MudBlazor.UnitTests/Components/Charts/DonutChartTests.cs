@@ -40,8 +40,8 @@ namespace MudBlazor.UnitTests.Charts
         [Test]
         public void DonutChartEmptyData()
         {
-            var comp = Context.RenderComponent<Pie>();
-            comp.Markup.Should().Contain("mud-chart-pie");
+            var comp = Context.RenderComponent<Donut>();
+            comp.Markup.Should().Contain("mud-chart-donut");
         }
 
         [Test]
@@ -61,7 +61,7 @@ namespace MudBlazor.UnitTests.Charts
                 .Add(p => p.ChartOptions, new ChartOptions { ChartPalette = _baseChartPalette })
                 .Add(p => p.InputLabels, labels));
 
-            comp.Markup.Should().Contain("class=\"mud-chart-pie\"");
+            comp.Markup.Should().Contain("class=\"mud-chart-donut\"");
             comp.Markup.Should().Contain("class=\"mud-chart-serie\"");
             comp.Markup.Should().Contain("mud-chart-legend-item");
 

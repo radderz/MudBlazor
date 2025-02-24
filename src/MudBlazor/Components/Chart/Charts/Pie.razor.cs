@@ -25,7 +25,7 @@ namespace MudBlazor.Charts
         [CascadingParameter]
         public MudChart? MudChartParent { get; set; }
 
-        // 1 = full circle, 0.2 = donut with 20% radius thickness 80% hole.
+        // 1 = full circle, 0.25 = donut with 25% radius thickness 75% hole.
         [Parameter]
         [Category(CategoryTypes.Chart.Appearance)]
         public double CircleDonutRatio { get; set; } = 1;
