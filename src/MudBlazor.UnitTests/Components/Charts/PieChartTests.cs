@@ -82,13 +82,13 @@ namespace MudBlazor.UnitTests.Charts
             if (data.Length == 4 && data.Contains(77))
             {
                 comp.Markup.Should()
-                    .Contain("d=\"M 0 140 A 140 140 0 1 1 86.7071 -109.9176 L 0 0\"");
+                    .Contain("d=\"M 0 -140 A 140 140 0 1 1 -86.7071 109.9176 L 0 0\"");
             }
 
             if (data.Length == 4 && data.Contains(5))
             {
                 comp.Markup.Should()
-                    .Contain("d=\"M 34.2796 135.7384 A 140 140 0 0 1 0 140 L 0 0\"");
+                    .Contain("d=\"M -34.2796 -135.7384 A 140 140 0 0 1 -0 -140 L 0 0\"");
             }
 
             comp.SetParametersAndRender(parameters => parameters

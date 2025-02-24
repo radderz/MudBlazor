@@ -13,6 +13,7 @@ namespace MudBlazor.Charts
     /// <seealso cref="Pie"/>
     /// <seealso cref="StackedBar"/>
     /// <seealso cref="TimeSeries"/>
+    [Obsolete("Use Pie instead with a CircleDonutRatio of 0.25. This will be removed in a future major version", false)]
     partial class Donut : MudCategoryChartBase
     {
         private const int Radius = 140;

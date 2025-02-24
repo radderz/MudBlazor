@@ -2,6 +2,7 @@
 using System.Globalization;
 using Microsoft.AspNetCore.Components;
 using Microsoft.AspNetCore.Components.Web;
+using MudBlazor.Extensions;
 
 #nullable enable
 namespace MudBlazor.Charts
@@ -24,6 +25,10 @@ namespace MudBlazor.Charts
         [CascadingParameter]
         public MudChart? MudChartParent { get; set; }
 
+        // 1 = full circle, 0.2 = donut with 20% radius thickness 80% hole.
+        [Parameter] 
+        public double CircleDonutRatio { get; set; } = 1; 
+
         private List<SvgPath> _paths = [];
         private List<SvgLegend> _legends = [];
         private SvgPath? _hoveredSegment;
@@ -39,7 +44,10 @@ namespace MudBlazor.Charts
                 return;
 
             var normalizedData = GetNormalizedData();
-            double cumulativeRadians = Math.PI / 2; // Start at 90 degrees
+            double cumulativeRadians = - Math.PI / 2; // Start at -90 degrees
+
+            double donutRadiusRatio = CircleDonutRatio.EnsureRange(0.1, 1);
+            
             for (var i = 0; i < normalizedData.Length; i++)
             {
                 var originalData = InputData[i];
@@ -50,18 +58,52 @@ namespace MudBlazor.Charts
                 var endx = Math.Cos(cumulativeRadians);
                 var endy = Math.Sin(cumulativeRadians);
                 var largeArcFlag = data > 0.5 ? 1 : 0;
-                var path = new SvgPath()
+
+                SvgPath path;
+                if (donutRadiusRatio < 1)
                 {
-                    Index = i,
-                    Data = $"M {ToS(startx * Radius)} {ToS(starty * Radius)} A {Radius} {Radius} 0 {ToS(largeArcFlag)} 1 {ToS(endx * Radius)} {ToS(endy * Radius)} L 0 0"
-                };
+                    // Calculate inner radius with a hole.
+                    var innerRadius = Radius * (1 - donutRadiusRatio);
+
+                    // Outer coordinates
+                    var outerStartX = startx * Radius;
+                    var outerStartY = starty * Radius;
+                    var outerEndX = endx * Radius;
+                    var outerEndY = endy * Radius;
+
+                    // Inner coordinates (for the hole)
+                    var innerStartX = startx * innerRadius;
+                    var innerStartY = starty * innerRadius;
+                    var innerEndX = endx * innerRadius;
+                    var innerEndY = endy * innerRadius;
+
+                    // Build a compound path: outer arc -> line to inner arc -> inner arc -> close
+                    path = new SvgPath
+                    {
+                        Index = i,
+                        Data = $"M {ToS(outerStartX)} {ToS(outerStartY)} " +
+                               $"A {ToS(Radius)} {ToS(Radius)} 0 {ToS(largeArcFlag)} 1 {ToS(outerEndX)} {ToS(outerEndY)} " +
+                               $"L {ToS(innerEndX)} {ToS(innerEndY)} " +
+                               $"A {ToS(innerRadius)} {ToS(innerRadius)} 0 {ToS(largeArcFlag)} 0 {ToS(innerStartX)} {ToS(innerStartY)} Z"
+                    };
+                }
+                else
+                {
+                    // Standard pie slice path going to the center.
+                    path = new SvgPath()
+                    {
+                        Index = i,
+                        Data = $"M {ToS(startx * Radius)} {ToS(starty * Radius)} A {Radius} {Radius} 0 {ToS(largeArcFlag)} 1 {ToS(endx * Radius)} {ToS(endy * Radius)} L 0 0"
+                    };
+                }
 
                 // Calculate the midpoint angle
                 var midAngle = cumulativeRadians - Math.PI * data;
+                var midRadius = Radius * (1 - donutRadiusRatio / 2);
 
                 // Calculate the midpoint coordinates at half the radius
-                var midX = Math.Cos(midAngle) * Radius / 2;
-                var midY = Math.Sin(midAngle) * Radius / 2;
+                var midX = Math.Cos(midAngle) * midRadius;
+                var midY = Math.Sin(midAngle) * midRadius;
 
                 path.LabelX = midX;
                 path.LabelY = midY;

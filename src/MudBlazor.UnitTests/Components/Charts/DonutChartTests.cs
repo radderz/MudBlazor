@@ -40,8 +40,8 @@ namespace MudBlazor.UnitTests.Charts
         [Test]
         public void DonutChartEmptyData()
         {
-            var comp = Context.RenderComponent<Donut>();
-            comp.Markup.Should().Contain("mud-chart-donut");
+            var comp = Context.RenderComponent<Pie>();
+            comp.Markup.Should().Contain("mud-chart-pie");
         }
 
         [Test]
@@ -61,8 +61,8 @@ namespace MudBlazor.UnitTests.Charts
                 .Add(p => p.ChartOptions, new ChartOptions { ChartPalette = _baseChartPalette })
                 .Add(p => p.InputLabels, labels));
 
-            comp.Markup.Should().Contain("class=\"mud-chart-donut\"");
-            comp.Markup.Should().Contain("class=\"mud-chart-serie mud-donut-segment\"");
+            comp.Markup.Should().Contain("class=\"mud-chart-pie\"");
+            comp.Markup.Should().Contain("class=\"mud-chart-serie\"");
             comp.Markup.Should().Contain("mud-chart-legend-item");
 
             if (data.Length <= 4)
@@ -80,13 +80,13 @@ namespace MudBlazor.UnitTests.Charts
             if (data.Length == 4 && data.Contains(50))
             {
                 comp.Markup.Should()
-                    .ContainEquivalentOf("stroke=\"#2979FF\" stroke-width=\"30\" cx=\"0\" cy=\"0\" r=\"120\" stroke-dasharray=\"376.9911 376.9911\" stroke-dashoffset=\"188.4956\"");
+                    .ContainEquivalentOf("fill=\"#2979FF\" d=\"M 0 -140 A 140 140 0 0 1 0 140 L 0 105 A 105 105 0 0 0 0 -105 Z\"");
             }
 
             if (data.Length == 4 && data.Contains(5))
             {
                 comp.Markup.Should()
-                    .ContainEquivalentOf("stroke=\"#FF9100\" stroke-width=\"30\" cx=\"0\" cy=\"0\" r=\"120\" stroke-dasharray=\"37.6991 716.2831\" stroke-dashoffset=\"565.4867\"");
+                    .ContainEquivalentOf("fill=\"#FF9100\" d=\"M -43.2624 -133.1479 A 140 140 0 0 1 -0 -140 L -0 -105 A 105 105 0 0 0 -32.4468 -99.8609 Z\"");
             }
 
             comp.SetParametersAndRender(parameters => parameters
@@ -140,20 +140,20 @@ namespace MudBlazor.UnitTests.Charts
                 .Add(p => p.ChartOptions, new ChartOptions { ChartPalette = new string[] { "#1E9AB0" } })
                 .Add(p => p.InputData, data));
 
-            var circles1 = comp.FindAll("circle");
+            var circles1 = comp.FindAll("path");
 
             int count;
-            count = circles1.Count(p => p.OuterHtml.Contains($"stroke=\"{"#1E9AB0"}\""));
+            count = circles1.Count(p => p.OuterHtml.Contains($"fill=\"{"#1E9AB0"}\""));
             count.Should().Be(22);
 
             comp.SetParametersAndRender(parameters => parameters
                 .Add(p => p.ChartOptions, new ChartOptions() { ChartPalette = _customPalette }));
 
-            var circles2 = comp.FindAll("circle");
+            var circles2 = comp.FindAll("path");
 
             foreach (var color in _customPalette)
             {
-                count = circles2.Count(p => p.OuterHtml.Contains($"stroke=\"{color}\""));
+                count = circles2.Count(p => p.OuterHtml.Contains($"fill=\"{color}\""));
                 if (color == _customPalette[0])
                 {
                     count.Should().Be(2, because: "the number of data points defined exceeds the number of colors in the chart palette, thus, any new defined data point takes the color from the chart palette in the same fashion as the previous data points starting from the beginning");
